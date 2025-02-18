@@ -118,7 +118,7 @@ fun MainMenu() {
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(onClick = { }) {
-            Text(text = "Start Game")
+            Text(text = "New Game")
         }
 
         Spacer(modifier = Modifier.height(16.dp))
