@@ -5,7 +5,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.OnBackPressedCallback
-import androidx.activity.OnBackPressedDispatcher
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -17,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
@@ -173,20 +173,28 @@ fun GameScreen(onBack: () -> Unit) {
         verticalArrangement = Arrangement.Center
     ) {
         Text("Player Score: $playerScore", fontSize = 20.sp)
-        DiceRow(diceValues = playerDice, selectedDice = selectedDice, onDiceSelected = { index, isSelected ->
+        DiceRow(diceValues = playerDice, isPlayer = true, selectedDice = selectedDice, onDiceSelected = { index, isSelected ->
             selectedDice = selectedDice.toMutableList().apply { this[index] = isSelected }
-        })
+        }, enableSelection = rerollCount < 2)
 
-        Button(onClick = {
-            if (isPlayerTurn) {
-                if (rerollCount < 2) {
-                    playerDice = rerollDice(playerDice, selectedDice)
-                    playerScore = playerDice.sum()
+        Row {
+            Button(onClick = {
+                if (isPlayerTurn) {
+                    if (rerollCount < 2 && selectedDice.any { it }) {
+                        playerDice = rerollDice(playerDice, selectedDice)
+                        playerScore = playerDice.sum()
+                        selectedDice = List(5) { false }
+                        rerollCount++
+                    }
+                }
+            }, enabled = isPlayerTurn && rerollCount < 2 && selectedDice.any { it }) {
+                Text("Reroll Selected")
+            }
 
-                    // resetting
-                    selectedDice = List(5) { false }
-                    rerollCount++
-                } else {
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Button(onClick = {
+                if (isPlayerTurn) {
                     playerDice = rollDice()
                     playerScore = playerDice.sum()
                     isPlayerTurn = false
@@ -197,32 +205,35 @@ fun GameScreen(onBack: () -> Unit) {
                         isPlayerTurn = true
                     })
                 }
+            }, enabled = isPlayerTurn) {
+                Text(if (rerollCount < 2 && selectedDice.any { it }) "Skip Reroll" else "Roll Dice")
             }
-        }, enabled = isPlayerTurn) {
-            Text(if (rerollCount < 2) "Reroll Selected" else "Roll Dice")
         }
 
         Spacer(modifier = Modifier.height(32.dp))
 
         Text("Computer Score: $computerScore", fontSize = 20.sp)
-        DiceRow(diceValues = computerDice)
+        DiceRow(diceValues = computerDice, isPlayer = false)
     }
 }
 
 @Composable
-fun DiceRow(diceValues: List<Int>, selectedDice: List<Boolean> = List(5) { false }, onDiceSelected: (Int, Boolean) -> Unit = { _, _ -> }) {
+fun DiceRow(diceValues: List<Int>, isPlayer: Boolean, selectedDice: List<Boolean> = List(5) { false }, onDiceSelected: (Int, Boolean) -> Unit = { _, _ -> }, enableSelection: Boolean = true) {
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         diceValues.forEachIndexed { index, value ->
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Dice(value = value, tint = ColorFilter.tint(MaterialTheme.colorScheme.primary))
-                Checkbox(checked = selectedDice[index], onCheckedChange = { isChecked ->
-                    onDiceSelected(index, isChecked)
-                })
+                if (isPlayer) {
+                    Checkbox(checked = selectedDice[index], onCheckedChange = { isChecked ->
+                        if (enableSelection) {
+                            onDiceSelected(index, isChecked)
+                        }
+                    }, enabled = enableSelection)
+                }
             }
         }
     }
 }
-
 fun rerollDice(diceValues: List<Int>, selectedDice: List<Boolean>): List<Int> {
     return diceValues.mapIndexed { index, value ->
         if (selectedDice[index]) Random.nextInt(1, 7) else value
