@@ -166,12 +166,21 @@ fun GameScreen(onBack: () -> Unit) {
     var isPlayerTurn by remember { mutableStateOf(true) }
     var selectedDice by remember { mutableStateOf(List(5) { false }) }
     var rerollCount by remember { mutableStateOf(0) }
+    var playerTotalScore by remember { mutableStateOf(0) }
+    var computerTotalScore by remember { mutableStateOf(0) }
+    var showWinDialog by remember { mutableStateOf(false) }
+    var winner by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
+        Text("Player Total Score: $playerTotalScore", fontSize = 20.sp)
+        Text("Computer Total Score: $computerTotalScore", fontSize = 20.sp)
+
+        Spacer(modifier = Modifier.height(16.dp))
+
         Text("Player Score: $playerScore", fontSize = 20.sp)
         DiceRow(diceValues = playerDice, isPlayer = true, selectedDice = selectedDice, onDiceSelected = { index, isSelected ->
             selectedDice = selectedDice.toMutableList().apply { this[index] = isSelected }
@@ -197,13 +206,25 @@ fun GameScreen(onBack: () -> Unit) {
                 if (isPlayerTurn) {
                     playerDice = rollDice()
                     playerScore = playerDice.sum()
-                    isPlayerTurn = false
-                    rerollCount = 0
-                    computerTurn(computerDice, computerScore, onComputerTurnComplete = {
-                        computerDice = it.first
-                        computerScore = it.second
-                        isPlayerTurn = true
-                    })
+                    playerTotalScore += playerScore
+                    if (playerTotalScore >= 101) {
+                        winner = "Player"
+                        showWinDialog = true
+                    } else {
+                        isPlayerTurn = false
+                        rerollCount = 0
+                        computerTurn(computerDice, computerScore, onComputerTurnComplete = {
+                            computerDice = it.first
+                            computerScore = it.second
+                            computerTotalScore += computerScore
+                            if (computerTotalScore >= 101) {
+                                winner = "Computer"
+                                showWinDialog = true
+                            } else {
+                                isPlayerTurn = true
+                            }
+                        })
+                    }
                 }
             }, enabled = isPlayerTurn) {
                 Text(if (rerollCount < 2 && selectedDice.any { it }) "Skip Reroll" else "Roll Dice")
@@ -214,6 +235,29 @@ fun GameScreen(onBack: () -> Unit) {
 
         Text("Computer Score: $computerScore", fontSize = 20.sp)
         DiceRow(diceValues = computerDice, isPlayer = false)
+    }
+
+    if (showWinDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                showWinDialog = false
+                playerTotalScore = 0
+                computerTotalScore = 0
+                onBack()
+            },
+            title = { Text("Game Over") },
+            text = { Text("$winner wins!") },
+            confirmButton = {
+                Button(onClick = {
+                    showWinDialog = false
+                    playerTotalScore = 0
+                    computerTotalScore = 0
+                    onBack()
+                }) {
+                    Text("OK")
+                }
+            }
+        )
     }
 }
 
@@ -234,6 +278,7 @@ fun DiceRow(diceValues: List<Int>, isPlayer: Boolean, selectedDice: List<Boolean
         }
     }
 }
+
 fun rerollDice(diceValues: List<Int>, selectedDice: List<Boolean>): List<Int> {
     return diceValues.mapIndexed { index, value ->
         if (selectedDice[index]) Random.nextInt(1, 7) else value
