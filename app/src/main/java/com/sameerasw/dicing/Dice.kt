@@ -17,7 +17,7 @@ fun Dice(value: Int, tint: ColorFilter) {
         4 -> R.drawable.dice4
         5 -> R.drawable.dice5
         6 -> R.drawable.dice6
-        else -> R.drawable.dice1 // Default to dice1 if value is invalid
+        else -> R.drawable.dice1
     }
 
     Image(

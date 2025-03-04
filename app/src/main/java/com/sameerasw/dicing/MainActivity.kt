@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.OnBackPressedDispatcher
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.border
@@ -22,6 +23,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
@@ -86,7 +88,7 @@ fun MainMenu() {
     var showGameScreen by remember { mutableStateOf(false) }
 
     if (showGameScreen) {
-        GameScreen(onBack = { showGameScreen = false }) // Pass the onBack callback
+        GameScreen(onBack = { showGameScreen = false })
         return
     }
 
@@ -145,7 +147,7 @@ fun GameScreen(onBack: () -> Unit) {
     val lifecycleOwner = LocalLifecycleOwner.current
 
     DisposableEffect(lifecycleOwner, onBackPressedDispatcher) {
-        val callback = object : androidx.activity.OnBackPressedCallback(true) {
+        val callback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 onBack()
             }
@@ -158,6 +160,9 @@ fun GameScreen(onBack: () -> Unit) {
 
     var playerDice by remember { mutableStateOf(List(5) { 1 }) }
     var playerScore by remember { mutableStateOf(0) }
+    var computerDice by remember { mutableStateOf(List(5) { 1 }) }
+    var computerScore by remember { mutableStateOf(0) }
+    var isPlayerTurn by remember { mutableStateOf(true) }
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -165,15 +170,27 @@ fun GameScreen(onBack: () -> Unit) {
         verticalArrangement = Arrangement.Center
     ) {
         Text("Player Score: $playerScore", fontSize = 20.sp)
-        Spacer(modifier = Modifier.height(16.dp))
         DiceRow(diceValues = playerDice)
-        Spacer(modifier = Modifier.height(16.dp))
+
         Button(onClick = {
-            playerDice = rollDice()
-            playerScore = playerDice.sum()
-        }) {
+            if (isPlayerTurn) {
+                playerDice = rollDice()
+                playerScore = playerDice.sum()
+                isPlayerTurn = false
+                computerTurn(computerDice, computerScore, onComputerTurnComplete = {
+                    computerDice = it.first
+                    computerScore = it.second
+                    isPlayerTurn = true
+                })
+            }
+        }, enabled = isPlayerTurn) {
             Text("Roll Dice")
         }
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        Text("Computer Score: $computerScore", fontSize = 20.sp)
+        DiceRow(diceValues = computerDice)
     }
 }
 
@@ -184,6 +201,13 @@ fun DiceRow(diceValues: List<Int>) {
             Dice(value = value, tint = ColorFilter.tint(MaterialTheme.colorScheme.primary))
         }
     }
+}
+
+fun computerTurn(dice: List<Int>, score: Int, onComputerTurnComplete: (Pair<List<Int>, Int>) -> Unit) {
+
+    val newDice = rollDice()
+    val newScore = newDice.sum()
+    onComputerTurnComplete(Pair(newDice, newScore))
 }
 
 fun rollDice(): List<Int> {
