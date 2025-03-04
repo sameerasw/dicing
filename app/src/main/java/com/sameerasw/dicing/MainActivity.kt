@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -163,6 +164,8 @@ fun GameScreen(onBack: () -> Unit) {
     var computerDice by remember { mutableStateOf(List(5) { 1 }) }
     var computerScore by remember { mutableStateOf(0) }
     var isPlayerTurn by remember { mutableStateOf(true) }
+    var selectedDice by remember { mutableStateOf(List(5) { false }) }
+    var rerollCount by remember { mutableStateOf(0) }
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -170,21 +173,33 @@ fun GameScreen(onBack: () -> Unit) {
         verticalArrangement = Arrangement.Center
     ) {
         Text("Player Score: $playerScore", fontSize = 20.sp)
-        DiceRow(diceValues = playerDice)
+        DiceRow(diceValues = playerDice, selectedDice = selectedDice, onDiceSelected = { index, isSelected ->
+            selectedDice = selectedDice.toMutableList().apply { this[index] = isSelected }
+        })
 
         Button(onClick = {
             if (isPlayerTurn) {
-                playerDice = rollDice()
-                playerScore = playerDice.sum()
-                isPlayerTurn = false
-                computerTurn(computerDice, computerScore, onComputerTurnComplete = {
-                    computerDice = it.first
-                    computerScore = it.second
-                    isPlayerTurn = true
-                })
+                if (rerollCount < 2) {
+                    playerDice = rerollDice(playerDice, selectedDice)
+                    playerScore = playerDice.sum()
+
+                    // resetting
+                    selectedDice = List(5) { false }
+                    rerollCount++
+                } else {
+                    playerDice = rollDice()
+                    playerScore = playerDice.sum()
+                    isPlayerTurn = false
+                    rerollCount = 0
+                    computerTurn(computerDice, computerScore, onComputerTurnComplete = {
+                        computerDice = it.first
+                        computerScore = it.second
+                        isPlayerTurn = true
+                    })
+                }
             }
         }, enabled = isPlayerTurn) {
-            Text("Roll Dice")
+            Text(if (rerollCount < 2) "Reroll Selected" else "Roll Dice")
         }
 
         Spacer(modifier = Modifier.height(32.dp))
@@ -195,16 +210,26 @@ fun GameScreen(onBack: () -> Unit) {
 }
 
 @Composable
-fun DiceRow(diceValues: List<Int>) {
+fun DiceRow(diceValues: List<Int>, selectedDice: List<Boolean> = List(5) { false }, onDiceSelected: (Int, Boolean) -> Unit = { _, _ -> }) {
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        diceValues.forEach { value ->
-            Dice(value = value, tint = ColorFilter.tint(MaterialTheme.colorScheme.primary))
+        diceValues.forEachIndexed { index, value ->
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Dice(value = value, tint = ColorFilter.tint(MaterialTheme.colorScheme.primary))
+                Checkbox(checked = selectedDice[index], onCheckedChange = { isChecked ->
+                    onDiceSelected(index, isChecked)
+                })
+            }
         }
     }
 }
 
-fun computerTurn(dice: List<Int>, score: Int, onComputerTurnComplete: (Pair<List<Int>, Int>) -> Unit) {
+fun rerollDice(diceValues: List<Int>, selectedDice: List<Boolean>): List<Int> {
+    return diceValues.mapIndexed { index, value ->
+        if (selectedDice[index]) Random.nextInt(1, 7) else value
+    }
+}
 
+fun computerTurn(dice: List<Int>, score: Int, onComputerTurnComplete: (Pair<List<Int>, Int>) -> Unit) {
     val newDice = rollDice()
     val newScore = newDice.sum()
     onComputerTurnComplete(Pair(newDice, newScore))
