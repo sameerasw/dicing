@@ -20,9 +20,15 @@
             android:theme="@style/Theme.Dicing">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".GameActivity"
+            android:exported="false"
+            android:label="Game Screen"
+            android:theme="@style/Theme.Dicing">
         </activity>
     </application>
 

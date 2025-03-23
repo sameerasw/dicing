@@ -1,6 +1,5 @@
 package com.sameerasw.dicing
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -13,7 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.sameerasw.dicing.ui.theme.DicingTheme
 
-class MainActivity : ComponentActivity() {
+class GameActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -26,11 +25,8 @@ class MainActivity : ComponentActivity() {
                             .padding(innerPadding),
                         contentAlignment = Alignment.Center
                     ) {
-                        MainMenu(onNavigateToGame = { score ->
-                            val intent = Intent(this@MainActivity, GameActivity::class.java)
-                            intent.putExtra("targetScore", score)
-                            startActivity(intent)
-                        })
+                        val targetScore = intent.getIntExtra("targetScore", 101) // Default value 101
+                        GameScreen(targetScore = targetScore, onBack = { finish() })
                     }
                 }
             }
