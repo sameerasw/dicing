@@ -42,7 +42,8 @@ fun GameScreen(onBack: () -> Unit) {
     var computerTotalScore by remember { mutableStateOf(0) }
     var showWinDialog by remember { mutableStateOf(false) }
     var winner by remember { mutableStateOf("") }
-    var computerRerollCount by remember { mutableStateOf(0) } // Track computer rerolls
+    var computerRerollCount by remember { mutableStateOf(0) }
+    var isTieBreaker by remember { mutableStateOf(false) } // Track tiebreaker state
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -79,6 +80,7 @@ fun GameScreen(onBack: () -> Unit) {
             Spacer(modifier = Modifier.width(16.dp))
 
             Button(onClick = {
+                // Computer's Turn
                 var computerDiceTemp = computerDice
                 var computerRerollCountTemp = 0
                 while (computerRerollCountTemp < 2 && Random.nextBoolean()) {
@@ -90,18 +92,29 @@ fun GameScreen(onBack: () -> Unit) {
                 computerDice = computerDiceTemp
                 computerScore = computerDice.sum()
 
-                playerTotalScore += playerScore
-                computerTotalScore += computerScore
 
-                if (playerTotalScore >= 101 && computerTotalScore >= 101) {
-                    winner = if (playerTotalScore > computerTotalScore) "Player" else if (computerTotalScore > playerTotalScore) "Computer" else "Tie"
+                val newPlayerTotalScore = playerTotalScore + playerScore
+                val newComputerTotalScore = computerTotalScore + computerScore
+                playerTotalScore = newPlayerTotalScore
+                computerTotalScore = newComputerTotalScore
+                if (isTieBreaker) {
+                    winner = if (playerScore > computerScore) "Player" else if (computerScore > playerScore) "Computer" else "Tie"
                     showWinDialog = true
-                } else if (playerTotalScore >= 101) {
-                    winner = "Player"
-                    showWinDialog = true
-                } else if (computerTotalScore >= 101) {
-                    winner = "Computer"
-                    showWinDialog = true
+                }
+                else if (newPlayerTotalScore >= 101 || newComputerTotalScore >= 101) {
+                    if(newPlayerTotalScore == newComputerTotalScore){
+                        isTieBreaker = true;
+                        winner = if (playerScore > computerScore) "Player" else if (computerScore > playerScore) "Computer" else "Tie"
+                    }
+                    else {
+                        winner = when {
+                            newPlayerTotalScore > newComputerTotalScore -> "Player"
+                            newComputerTotalScore > newPlayerTotalScore -> "Computer"
+                            else -> "Tie"
+                        }
+                        showWinDialog = true
+                    }
+
                 } else {
                     playerDice = rollDice()
                     playerScore = playerDice.sum()
@@ -126,7 +139,14 @@ fun GameScreen(onBack: () -> Unit) {
                 onBack()
             },
             title = { Text("Game Over") },
-            text = { Text(if (winner == "Tie") "It's a tie!" else "$winner wins!") },
+            text = {
+                when (winner) {
+                    "Tie" -> Text("It's a tie! Rolling Again.")
+                    "Player" -> Text("Player wins!")
+                    "Computer" -> Text("Computer wins!")
+                    else -> Text("Game Over")
+                }
+            },
             confirmButton = {
                 Button(onClick = {
                     showWinDialog = false
