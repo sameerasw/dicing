@@ -38,19 +38,19 @@ fun GameScreen(
     }
 
     var playerDice by rememberSaveable { mutableStateOf(rollDice()) }
-    var playerScore by rememberSaveable { mutableStateOf(playerDice.sum()) }
+    var playerScore by rememberSaveable { mutableIntStateOf(playerDice.sum()) }
     var computerDice by rememberSaveable { mutableStateOf(rollDice()) }
-    var computerScore by rememberSaveable { mutableStateOf(computerDice.sum()) }
+    var computerScore by rememberSaveable { mutableIntStateOf(computerDice.sum()) }
     var selectedDice by rememberSaveable { mutableStateOf(List(5) { false }) }
-    var rerollCount by rememberSaveable { mutableStateOf(0) }
-    var playerTotalScore by rememberSaveable { mutableStateOf(0) }
-    var computerTotalScore by rememberSaveable { mutableStateOf(0) }
+    var reRollCount by rememberSaveable { mutableIntStateOf(0) }
+    var playerTotalScore by rememberSaveable { mutableIntStateOf(0) }
+    var computerTotalScore by rememberSaveable { mutableIntStateOf(0) }
     var showWinDialog by rememberSaveable { mutableStateOf(false) }
     var winner by rememberSaveable { mutableStateOf("") }
-    var computerRerollCount by rememberSaveable { mutableStateOf(0) }
+    var computerRerollCount by rememberSaveable { mutableIntStateOf(0) }
     var isTieBreaker by rememberSaveable { mutableStateOf(false) }
-    var humanWins by rememberSaveable { mutableStateOf(0) }
-    var computerWins by rememberSaveable { mutableStateOf(0) }
+    var humanWins by rememberSaveable { mutableIntStateOf(0) }
+    var computerWins by rememberSaveable { mutableIntStateOf(0) }
 
     fun resetDice() {
         playerDice = rollDice()
@@ -58,7 +58,7 @@ fun GameScreen(
         computerDice = rollDice()
         computerScore = computerDice.sum()
         selectedDice = List(5) { false }
-        rerollCount = 0
+        reRollCount = 0
     }
 
     Column(
@@ -99,7 +99,7 @@ fun GameScreen(
                 onDiceSelected = { index, isSelected ->
                     selectedDice = selectedDice.toMutableList().apply { this[index] = isSelected }
                 },
-                enableSelection = rerollCount < 2
+                enableSelection = reRollCount < 2
             )
         }
 
@@ -113,14 +113,14 @@ fun GameScreen(
             verticalAlignment = Alignment.Bottom
         ) {
             Button(onClick = {
-                if (rerollCount < 2 && selectedDice.any { it }) {
+                if (reRollCount < 2 && selectedDice.any { it }) {
                     playerDice = rerollDice(playerDice, selectedDice)
                     playerScore = playerDice.sum()
                     selectedDice = List(5) { false }
-                    rerollCount++
+                    reRollCount++
                 }
-            }, enabled = rerollCount < 2 && selectedDice.any { it }) {
-                Text(if (rerollCount > 1) "No More Re-rolls" else if (selectedDice.none { it }) "Select to Re-roll" else "Re-roll selected")
+            }, enabled = reRollCount < 2 && selectedDice.any { it }) {
+                Text(if (reRollCount > 1) "No More Re-rolls" else if (selectedDice.none { it }) "Select to Re-roll" else "Re-roll selected")
             }
 
             Button(onClick = {
