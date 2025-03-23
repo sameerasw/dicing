@@ -17,7 +17,10 @@ import com.sameerasw.dicing.GameLogic.computerReroll
 import kotlin.random.Random
 
 @Composable
-fun GameScreen(onBack: () -> Unit) {
+fun GameScreen(
+    targetScore: Int,
+    onBack: () -> Unit,
+) {
     val onBackPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
     val lifecycleOwner = LocalLifecycleOwner.current
 
@@ -46,6 +49,16 @@ fun GameScreen(onBack: () -> Unit) {
     var computerRerollCount by rememberSaveable { mutableStateOf(0) }
     var isTieBreaker by rememberSaveable { mutableStateOf(false) }
 
+
+    fun resetDice() {
+        playerDice = rollDice()
+        playerScore = playerDice.sum()
+        computerDice = rollDice()
+        computerScore = computerDice.sum()
+        selectedDice = List(5) { false }
+        rerollCount = 0
+    }
+
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -62,9 +75,15 @@ fun GameScreen(onBack: () -> Unit) {
         Spacer(modifier = Modifier.height(16.dp))
 
         Text("Player Score: $playerScore", fontSize = 20.sp)
-        DiceRow(diceValues = playerDice, isPlayer = true, selectedDice = selectedDice, onDiceSelected = { index, isSelected ->
-            selectedDice = selectedDice.toMutableList().apply { this[index] = isSelected }
-        }, enableSelection = rerollCount < 2)
+        DiceRow(
+            diceValues = playerDice,
+            isPlayer = true,
+            selectedDice = selectedDice,
+            onDiceSelected = { index, isSelected ->
+                selectedDice = selectedDice.toMutableList().apply { this[index] = isSelected }
+            },
+            enableSelection = rerollCount < 2
+        )
 
         Row {
             Button(onClick = {
@@ -103,7 +122,7 @@ fun GameScreen(onBack: () -> Unit) {
                     winner = if (playerScore > computerScore) "Player" else if (computerScore > playerScore) "Computer" else "Tie"
                     showWinDialog = true
                 }
-                else if (newPlayerTotalScore >= 101 || newComputerTotalScore >= 101) {
+                else if (newPlayerTotalScore >= targetScore || newComputerTotalScore >= targetScore) {
                     if(newPlayerTotalScore == newComputerTotalScore){
                         isTieBreaker = true;
                         winner = if (playerScore > computerScore) "Player" else if (computerScore > playerScore) "Computer" else "Tie"
@@ -118,12 +137,7 @@ fun GameScreen(onBack: () -> Unit) {
                     }
 
                 } else {
-                    playerDice = rollDice()
-                    playerScore = playerDice.sum()
-                    computerDice = rollDice()
-                    computerScore = computerDice.sum()
-                    selectedDice = List(5) { false }
-                    rerollCount = 0
+                    resetDice()
                 }
             }, enabled = true) {
                 Text("Score & Roll")

@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.Alignment.Companion.CenterHorizontally
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -13,17 +13,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun MainMenu() {
+fun MainMenu(onNavigateToGame: (Int) -> Unit) {
     var showDialog by rememberSaveable { mutableStateOf(false) }
-    var showGameScreen by rememberSaveable { mutableStateOf(false) }
-
-    if (showGameScreen) {
-        GameScreen(onBack = { showGameScreen = false })
-        return
-    }
+    var targetScore by rememberSaveable { mutableStateOf("101") }  // Default target score
+    var errorMessage by rememberSaveable { mutableStateOf("") }
 
     Column(
-        horizontalAlignment = CenterHorizontally,
+        horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .padding(32.dp)
             .border(width = 2.dp, color = MaterialTheme.colorScheme.primary, shape = MaterialTheme.shapes.medium)
@@ -39,7 +35,35 @@ fun MainMenu() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Button(onClick = { showGameScreen = true }) {
+        OutlinedTextField(
+            value = targetScore,
+            onValueChange = {
+                targetScore = it
+                errorMessage = ""
+            },
+            label = { Text("Target Score") },
+            isError = errorMessage.isNotEmpty(),
+            supportingText = {
+                if (errorMessage.isNotEmpty()) {
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = errorMessage,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            }
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Button(onClick = {
+            val score = targetScore.toIntOrNull()
+            if (score == null || score <= 0) {
+                errorMessage = "Please enter a valid positive number"
+            } else {
+                onNavigateToGame(score)
+            }
+        }) {
             Text(text = "New Game")
         }
 

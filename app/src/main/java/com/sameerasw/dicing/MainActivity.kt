@@ -8,7 +8,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.sameerasw.dicing.ui.theme.DicingTheme
@@ -26,7 +27,23 @@ class MainActivity : ComponentActivity() {
                             .padding(innerPadding),
                         contentAlignment = Alignment.Center
                     ) {
-                        DicingApp()
+                        val showDicingApp = rememberSaveable { mutableStateOf(true) }
+                        val targetScore = rememberSaveable { mutableStateOf(101) } // Default target score
+
+                        // Initially, show the DicingApp
+                        if (showDicingApp.value) {
+                            DicingApp(onNavigateToGame = { score ->
+                                showDicingApp.value = false
+                                targetScore.value = score
+                            })
+                        } else {
+                            GameScreen(
+                                targetScore = targetScore.value,
+                                onBack = {
+                                    showDicingApp.value = true
+                                }
+                            )
+                        }
                     }
                 }
             }
