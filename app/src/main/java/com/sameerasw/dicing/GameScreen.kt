@@ -16,9 +16,7 @@ import com.sameerasw.dicing.DiceLogic.rollDice
 import com.sameerasw.dicing.GameLogic.computerReroll
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.runtime.MutableIntState
-import androidx.compose.runtime.MutableState
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.style.TextAlign
 import kotlin.random.Random
 

@@ -7,7 +7,6 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.unit.dp
 
@@ -18,7 +17,7 @@ fun DiceRow(
     selectedDice: List<Boolean> = List(5) { false },
     onDiceSelected: (Int, Boolean) -> Unit = { _, _ -> },
     enableSelection: Boolean = true,
-    enableSelectionFlag: Boolean = true// Disable checkbox
+    enableSelectionFlag: Boolean = true
 ) {
     Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
         diceValues.forEachIndexed { index, value ->
@@ -32,7 +31,7 @@ fun DiceRow(
                                 onDiceSelected(index, isChecked)
                             }
                         },
-                        enabled = enableSelection && enableSelectionFlag//Disable during Tiebreaker
+                        enabled = enableSelection && enableSelectionFlag
                     )
                 }
             }
