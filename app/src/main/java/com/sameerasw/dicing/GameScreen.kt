@@ -55,7 +55,6 @@ fun GameScreen(
     var showWinDialog by rememberSaveable { mutableStateOf(false) }
     var winner by rememberSaveable { mutableStateOf("") }
     var isTieBreaker by rememberSaveable { mutableStateOf(false) }
-    var canThrow by rememberSaveable { mutableStateOf(true) }
     var playerThrowCount by rememberSaveable { mutableIntStateOf(0) }
     var isLastThrow by rememberSaveable { mutableStateOf(false) }
     var isGameOver by rememberSaveable { mutableStateOf(false) }
@@ -83,7 +82,6 @@ fun GameScreen(
         return computerDiceTemp
     }
 
-    // Handle score calculation and winner check
     fun handleScoreAndWinner() {
         // The total points
         val newPlayerTotalScore = playerTotalScore + playerScore
@@ -126,7 +124,7 @@ fun GameScreen(
     }
 
     // UI logic
-    if (!showGoBackText) { // Display the game content or the "Go Back" text
+    if (!showGoBackText) {
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = CenterHorizontally,
@@ -165,7 +163,6 @@ fun GameScreen(
                     onDiceSelected = { index, isSelected ->
                         selectedDice = selectedDice.toMutableList().apply { this[index] = isSelected }
                     },
-                    enableSelection = canThrow
                 )
             }
 
@@ -200,7 +197,7 @@ fun GameScreen(
                 Button(onClick = {
                     // Handle scoring and winner check
                     handleScoreAndWinner()
-                }, enabled = canThrow) {
+                }) {
                     Text("Score")
                 }
             }
@@ -229,7 +226,7 @@ fun GameScreen(
                     Button(onClick = {
                         showWinDialog = false
                         isGameOver = true
-                        showGoBackText = true // Activate the "Go Back" text
+                        showGoBackText = true
 
                     }) {
                         Text("OK")
