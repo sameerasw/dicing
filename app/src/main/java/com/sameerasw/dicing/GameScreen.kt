@@ -64,21 +64,28 @@ fun GameScreen(
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceBetween // Distribute space
+        verticalArrangement = Arrangement.SpaceBetween
     ) {
-        // Top - Win Count
-        Text(
-            modifier = Modifier.align(CenterHorizontally), // Center horizontally
-            text = "H:$humanWins/C:$computerWins",
-            fontSize = 20.sp
-        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "H:$humanWins/C:$computerWins",
+                fontSize = 20.sp
+            )
+            Row {
+                Text("A:$playerTotalScore", fontSize = 20.sp)
+                Spacer(modifier = Modifier.width(16.dp))
+                Text("B:$computerTotalScore", fontSize = 20.sp)
+            }
+        }
+
         Column(horizontalAlignment = CenterHorizontally,
             verticalArrangement = Arrangement.Center) {
-            Text("Player Total Score: $playerTotalScore", fontSize = 20.sp)
-            Text("Computer Total Score: $computerTotalScore", fontSize = 20.sp)
-
-            Spacer(modifier = Modifier.height(32.dp))
-
             Text("Computer Score: $computerScore", fontSize = 20.sp)
             DiceRow(diceValues = computerDice, isPlayer = false)
 
@@ -171,7 +178,7 @@ fun GameScreen(
 
     if (showWinDialog) {
         AlertDialog(
-            onDismissRequest = { showWinDialog = false },
+            onDismissRequest = {  }, // Do nothing
             title = { Text("Game Over") },
             text = {
                 Column {
