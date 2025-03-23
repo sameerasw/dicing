@@ -51,6 +51,8 @@ fun GameScreen(
     var humanWins by rememberSaveable { mutableIntStateOf(0) }
     var computerWins by rememberSaveable { mutableIntStateOf(0) }
     var canThrow by rememberSaveable { mutableStateOf(true) }
+    var playerThrowCount by rememberSaveable { mutableIntStateOf(0) }
+    var isLastThrow by rememberSaveable { mutableStateOf(false) } // Track if it's the last throw
 
     fun resetDice() {
         playerDice = rollDice()
@@ -59,6 +61,8 @@ fun GameScreen(
         computerScore = computerDice.sum()
         selectedDice = List(5) { false }
         reRollCount = 0
+        playerThrowCount = 0
+        isLastThrow = false // Reset last throw state
     }
 
     fun performComputerTurn(): List<Int> {
@@ -70,6 +74,46 @@ fun GameScreen(
             computerRerollCountTemp = newCount
         }
         return computerDiceTemp
+    }
+
+    // Handle score calculation and winner check
+    fun handleScoreAndWinner() {
+        // The total points
+        val newPlayerTotalScore = playerTotalScore + playerScore
+        val newComputerTotalScore = computerTotalScore + computerScore
+
+        // Computer's turn
+        val newComputerDice = performComputerTurn()
+        computerDice = newComputerDice
+        computerScore = newComputerDice.sum()
+
+        playerTotalScore = newPlayerTotalScore
+        computerTotalScore = newComputerTotalScore
+
+        if (isTieBreaker) {
+            winner = when {
+                newPlayerTotalScore > newComputerTotalScore -> "Player"
+                newComputerTotalScore > newPlayerTotalScore -> "Computer"
+                else -> "Tie"
+            }
+            showWinDialog = true
+        } else if (playerTotalScore >= targetScore || computerTotalScore >= targetScore) {
+            winner = when {
+                newPlayerTotalScore > newComputerTotalScore -> {
+                    humanWins++
+                    "Player"
+                }
+                newComputerTotalScore > newPlayerTotalScore -> {
+                    computerWins++
+                    "Computer"
+                }
+                else -> "Tie"
+            }
+            showWinDialog = true
+        } else {
+            // Reset and continue to the next round
+            resetDice()
+        }
     }
 
     Column(
@@ -114,7 +158,6 @@ fun GameScreen(
             )
         }
 
-
         // Bottom - Buttons
         Row(
             modifier = Modifier
@@ -124,71 +167,33 @@ fun GameScreen(
             verticalAlignment = Alignment.Bottom
         ) {
             Button(onClick = {
-                playerDice = rerollDice(playerDice, selectedDice)
-                playerScore = playerDice.sum()
-                selectedDice = List(5) { false }
-                reRollCount++
+                if (playerThrowCount < 1) {
+                    playerDice = rerollDice(playerDice, selectedDice)
+                    playerScore = playerDice.sum()
+                    selectedDice = List(5) { false }
+                    reRollCount++
+                    playerThrowCount++
 
-            }, enabled =  canThrow  ) {
-                Text("Throw")
+                    // Check if it's the last throw
+                    if (playerThrowCount == 1) {
+                        isLastThrow = true
+                    }
+                } else {
+                    // Automatically handle score and winner check after last throw
+                    handleScoreAndWinner()
+                }
+            }) {
+                Text(if (isLastThrow) "Throw and Score" else "Throw")
             }
 
             Button(onClick = {
-                //The total point
-                val newPlayerTotalScore = playerTotalScore + playerScore
-                val newComputerTotalScore = computerTotalScore + computerScore
-
-                val newComputerDice = performComputerTurn()
-
-                computerDice = newComputerDice
-                computerScore = newComputerDice.sum()
-                playerTotalScore = newPlayerTotalScore
-                computerTotalScore = newComputerTotalScore
-                if (isTieBreaker) {
-                    winner = if (newPlayerTotalScore > newComputerTotalScore) "Player" else if (newComputerTotalScore >newPlayerTotalScore) "Computer" else "Tie"
-                    showWinDialog = true
-
-                }
-
-                else if (playerTotalScore >= targetScore || computerTotalScore >= targetScore) {
-                    if(playerTotalScore == computerTotalScore){
-                        isTieBreaker = true
-                        winner = if (playerTotalScore > newComputerTotalScore) "Player" else if ( newComputerTotalScore>playerTotalScore) "Computer" else "Tie"
-                    }
-
-                    else {
-
-                        winner = when {
-                            newPlayerTotalScore > newComputerTotalScore -> {
-                                humanWins++
-
-                                "Player"
-                            }
-
-                            newComputerTotalScore > newPlayerTotalScore -> {
-                                computerWins++
-                                "Computer"
-                            }
-                            else -> "Tie"
-                        }
-                        showWinDialog = true
-                    }
-
-                } else {
-                    val newComputerDice = performComputerTurn()
-                    computerDice = newComputerDice
-                    computerScore = newComputerDice.sum()
-                    playerDice = rollDice()
-                    playerScore = playerDice.sum()
-                    resetDice()
-                }
+                // Handle scoring and winner check
+                handleScoreAndWinner()
             }, enabled = true) {
                 Text("Score")
             }
         }
-
     }
-
 
     if (showWinDialog) {
         AlertDialog(
@@ -215,7 +220,7 @@ fun GameScreen(
                     computerTotalScore = 0
                     showWinDialog = false
                     isTieBreaker = false
-
+                    playerThrowCount = 0
                 }) {
                     Text("Continue")
                 }
