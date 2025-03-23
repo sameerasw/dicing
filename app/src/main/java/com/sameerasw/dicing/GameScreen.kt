@@ -19,6 +19,9 @@ import androidx.compose.runtime.MutableIntState
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import kotlin.random.Random
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Star
 
 @Composable
 fun GameScreen(
@@ -154,16 +157,24 @@ fun GameScreen(
                     text = "H:${humanWins.intValue}/C:${computerWins.intValue}",
                     fontSize = 20.sp
                 )
-                Row {
-                    Text("A:$playerTotalScore", fontSize = 20.sp)
-                    Spacer(modifier = Modifier.width(16.dp))
-                    Text("B:$computerTotalScore", fontSize = 20.sp)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(imageVector = Icons.Filled.Person, contentDescription = "Player", modifier = Modifier.size(24.dp))
+                    Text(" $playerTotalScore", fontSize = 20.sp)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Icon(imageVector = Icons.Filled.Star, contentDescription = "Computer", modifier = Modifier.size(24.dp))
+                    Text(" $computerTotalScore", fontSize = 20.sp)
                 }
             }
 
             Column(horizontalAlignment = CenterHorizontally,
                 verticalArrangement = Arrangement.Center) {
-                Text("Computer Score: $computerScore", fontSize = 20.sp)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(imageVector = Icons.Filled.Star, contentDescription = "Computer", modifier = Modifier.size(24.dp))
+                    Text(" Computer Score: $computerScore", fontSize = 20.sp)
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
                 DiceRow(
                     diceValues = computerDice,
                     isPlayer = false,
@@ -172,7 +183,13 @@ fun GameScreen(
 
                 Spacer(modifier = Modifier.height(32.dp))
 
-                Text("Player Score: $playerScore", fontSize = 20.sp)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(imageVector = Icons.Filled.Person, contentDescription = "Player", modifier = Modifier.size(24.dp))
+                    Text(" Player Score: $playerScore", fontSize = 20.sp)
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
                 DiceRow(
                     diceValues = playerDice,
                     isPlayer = true,
