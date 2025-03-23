@@ -5,6 +5,7 @@ import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -32,18 +33,18 @@ fun GameScreen(onBack: () -> Unit) {
         }
     }
 
-    var playerDice by remember { mutableStateOf(rollDice()) }
-    var playerScore by remember { mutableStateOf(playerDice.sum()) }
-    var computerDice by remember { mutableStateOf(rollDice()) }
-    var computerScore by remember { mutableStateOf(computerDice.sum()) }
-    var selectedDice by remember { mutableStateOf(List(5) { false }) }
-    var rerollCount by remember { mutableStateOf(0) }
-    var playerTotalScore by remember { mutableStateOf(0) }
-    var computerTotalScore by remember { mutableStateOf(0) }
-    var showWinDialog by remember { mutableStateOf(false) }
-    var winner by remember { mutableStateOf("") }
-    var computerRerollCount by remember { mutableStateOf(0) }
-    var isTieBreaker by remember { mutableStateOf(false) } // Track tiebreaker state
+    var playerDice by rememberSaveable { mutableStateOf(rollDice()) }
+    var playerScore by rememberSaveable { mutableStateOf(playerDice.sum()) }
+    var computerDice by rememberSaveable { mutableStateOf(rollDice()) }
+    var computerScore by rememberSaveable { mutableStateOf(computerDice.sum()) }
+    var selectedDice by rememberSaveable { mutableStateOf(List(5) { false }) }
+    var rerollCount by rememberSaveable { mutableStateOf(0) }
+    var playerTotalScore by rememberSaveable { mutableStateOf(0) }
+    var computerTotalScore by rememberSaveable { mutableStateOf(0) }
+    var showWinDialog by rememberSaveable { mutableStateOf(false) }
+    var winner by rememberSaveable { mutableStateOf("") }
+    var computerRerollCount by rememberSaveable { mutableStateOf(0) }
+    var isTieBreaker by rememberSaveable { mutableStateOf(false) }
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -97,6 +98,7 @@ fun GameScreen(onBack: () -> Unit) {
                 val newComputerTotalScore = computerTotalScore + computerScore
                 playerTotalScore = newPlayerTotalScore
                 computerTotalScore = newComputerTotalScore
+
                 if (isTieBreaker) {
                     winner = if (playerScore > computerScore) "Player" else if (computerScore > playerScore) "Computer" else "Tie"
                     showWinDialog = true

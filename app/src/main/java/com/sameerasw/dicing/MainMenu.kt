@@ -4,6 +4,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -13,8 +14,8 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun MainMenu() {
-    var showDialog by remember { mutableStateOf(false) }
-    var showGameScreen by remember { mutableStateOf(false) }
+    var showDialog by rememberSaveable { mutableStateOf(false) }
+    var showGameScreen by rememberSaveable { mutableStateOf(false) }
 
     if (showGameScreen) {
         GameScreen(onBack = { showGameScreen = false })
