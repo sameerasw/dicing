@@ -47,10 +47,10 @@ fun GameScreen(
     var computerTotalScore by rememberSaveable { mutableIntStateOf(0) }
     var showWinDialog by rememberSaveable { mutableStateOf(false) }
     var winner by rememberSaveable { mutableStateOf("") }
-    var computerRerollCount by rememberSaveable { mutableIntStateOf(0) }
     var isTieBreaker by rememberSaveable { mutableStateOf(false) }
     var humanWins by rememberSaveable { mutableIntStateOf(0) }
     var computerWins by rememberSaveable { mutableIntStateOf(0) }
+    var canThrow by rememberSaveable { mutableStateOf(true) }
 
     fun resetDice() {
         playerDice = rollDice()
@@ -59,6 +59,17 @@ fun GameScreen(
         computerScore = computerDice.sum()
         selectedDice = List(5) { false }
         reRollCount = 0
+    }
+
+    fun performComputerTurn(): List<Int> {
+        var computerDiceTemp = computerDice
+        var computerRerollCountTemp = 0
+        while (computerRerollCountTemp < 2 && Random.nextBoolean()) {
+            val (newDice, newCount) = computerReroll(computerDiceTemp, computerRerollCountTemp)
+            computerDiceTemp = newDice
+            computerRerollCountTemp = newCount
+        }
+        return computerDiceTemp
     }
 
     Column(
@@ -99,7 +110,7 @@ fun GameScreen(
                 onDiceSelected = { index, isSelected ->
                     selectedDice = selectedDice.toMutableList().apply { this[index] = isSelected }
                 },
-                enableSelection = reRollCount < 2
+                enableSelection = canThrow
             )
         }
 
@@ -113,50 +124,47 @@ fun GameScreen(
             verticalAlignment = Alignment.Bottom
         ) {
             Button(onClick = {
-                if (reRollCount < 2 && selectedDice.any { it }) {
-                    playerDice = rerollDice(playerDice, selectedDice)
-                    playerScore = playerDice.sum()
-                    selectedDice = List(5) { false }
-                    reRollCount++
-                }
-            }, enabled = reRollCount < 2 && selectedDice.any { it }) {
-                Text(if (reRollCount > 1) "No More Re-rolls" else if (selectedDice.none { it }) "Select to Re-roll" else "Re-roll selected")
+                playerDice = rerollDice(playerDice, selectedDice)
+                playerScore = playerDice.sum()
+                selectedDice = List(5) { false }
+                reRollCount++
+
+            }, enabled =  canThrow  ) {
+                Text("Throw")
             }
 
             Button(onClick = {
-                // Computer's Turn
-                var computerDiceTemp = computerDice
-                var computerRerollCountTemp = 0
-                while (computerRerollCountTemp < 2 && Random.nextBoolean()) {
-                    val (newDice, newCount) = computerReroll(computerDiceTemp, computerRerollCountTemp)
-                    computerDiceTemp = newDice
-                    computerRerollCountTemp = newCount
-                }
-
-                computerDice = computerDiceTemp
-                computerScore = computerDice.sum()
-
-
+                //The total point
                 val newPlayerTotalScore = playerTotalScore + playerScore
                 val newComputerTotalScore = computerTotalScore + computerScore
+
+                val newComputerDice = performComputerTurn()
+
+                computerDice = newComputerDice
+                computerScore = newComputerDice.sum()
                 playerTotalScore = newPlayerTotalScore
                 computerTotalScore = newComputerTotalScore
-
                 if (isTieBreaker) {
-                    winner = if (playerScore > computerScore) "Player" else if (computerScore > playerScore) "Computer" else "Tie"
+                    winner = if (newPlayerTotalScore > newComputerTotalScore) "Player" else if (newComputerTotalScore >newPlayerTotalScore) "Computer" else "Tie"
                     showWinDialog = true
+
                 }
-                else if (newPlayerTotalScore >= targetScore || newComputerTotalScore >= targetScore) {
-                    if(newPlayerTotalScore == newComputerTotalScore){
-                        isTieBreaker = true;
-                        winner = if (playerScore > computerScore) "Player" else if (computerScore > playerScore) "Computer" else "Tie"
+
+                else if (playerTotalScore >= targetScore || computerTotalScore >= targetScore) {
+                    if(playerTotalScore == computerTotalScore){
+                        isTieBreaker = true
+                        winner = if (playerTotalScore > newComputerTotalScore) "Player" else if ( newComputerTotalScore>playerTotalScore) "Computer" else "Tie"
                     }
+
                     else {
+
                         winner = when {
                             newPlayerTotalScore > newComputerTotalScore -> {
                                 humanWins++
+
                                 "Player"
                             }
+
                             newComputerTotalScore > newPlayerTotalScore -> {
                                 computerWins++
                                 "Computer"
@@ -167,14 +175,20 @@ fun GameScreen(
                     }
 
                 } else {
+                    val newComputerDice = performComputerTurn()
+                    computerDice = newComputerDice
+                    computerScore = newComputerDice.sum()
+                    playerDice = rollDice()
+                    playerScore = playerDice.sum()
                     resetDice()
                 }
             }, enabled = true) {
-                Text("Score & Roll")
+                Text("Score")
             }
         }
 
     }
+
 
     if (showWinDialog) {
         AlertDialog(
@@ -199,8 +213,9 @@ fun GameScreen(
                     showWinDialog = false
                     playerTotalScore = 0
                     computerTotalScore = 0
-                    resetDice()
+                    showWinDialog = false
                     isTieBreaker = false
+
                 }) {
                     Text("Continue")
                 }

@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -29,17 +28,16 @@ class MainActivity : ComponentActivity() {
                         contentAlignment = Alignment.Center
                     ) {
                         val showDicingApp = rememberSaveable { mutableStateOf(true) }
-                        val targetScore = rememberSaveable { mutableIntStateOf(101) } // Default target score
+                        val targetScore = rememberSaveable { mutableStateOf(101) }
 
-                        // Initially, show the DicingApp
                         if (showDicingApp.value) {
                             DicingApp(onNavigateToGame = { score ->
                                 showDicingApp.value = false
-                                targetScore.intValue = score
+                                targetScore.value = score
                             })
                         } else {
                             GameScreen(
-                                targetScore = targetScore.intValue,
+                                targetScore = targetScore.value,
                                 onBack = {
                                     showDicingApp.value = true
                                 }

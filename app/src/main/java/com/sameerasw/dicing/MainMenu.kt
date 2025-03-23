@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun MainMenu(onNavigateToGame: (Int) -> Unit) {
     var showDialog by rememberSaveable { mutableStateOf(false) }
-    var targetScore by rememberSaveable { mutableStateOf("101") }  // Default target score
+    var targetScore by rememberSaveable { mutableStateOf("101") }
     var errorMessage by rememberSaveable { mutableStateOf("") }
 
     Column(
