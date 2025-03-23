@@ -13,7 +13,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun MainMenu(onNavigateToGame: (Int) -> Unit) {
+fun MainMenu(humanWins: Int, computerWins: Int, onNavigateToGame: (Int) -> Unit) {
     var showDialog by rememberSaveable { mutableStateOf(false) }
     var targetScore by rememberSaveable { mutableStateOf("101") }
     var errorMessage by rememberSaveable { mutableStateOf("") }
@@ -31,6 +31,15 @@ fun MainMenu(onNavigateToGame: (Int) -> Unit) {
             fontSize = 24.sp,
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.85f),
             fontWeight = FontWeight.Medium
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text(
+            text = "Wins: H:$humanWins /C:$computerWins",
+            textAlign = TextAlign.Center,
+            fontSize = 16.sp,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
         )
 
         Spacer(modifier = Modifier.height(16.dp))

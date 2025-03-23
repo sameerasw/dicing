@@ -1,5 +1,3 @@
-package com.sameerasw.dicing
-
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.layout.*
@@ -15,11 +13,18 @@ import com.sameerasw.dicing.DiceLogic.rerollDice
 import com.sameerasw.dicing.DiceLogic.rollDice
 import com.sameerasw.dicing.GameLogic.computerReroll
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
+import androidx.compose.runtime.MutableIntState
+import androidx.compose.runtime.MutableState
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import com.sameerasw.dicing.DiceRow
 import kotlin.random.Random
 
 @Composable
 fun GameScreen(
     targetScore: Int,
+    humanWins: MutableIntState,
+    computerWins: MutableIntState,
     onBack: () -> Unit,
 ) {
     val onBackPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
@@ -48,11 +53,12 @@ fun GameScreen(
     var showWinDialog by rememberSaveable { mutableStateOf(false) }
     var winner by rememberSaveable { mutableStateOf("") }
     var isTieBreaker by rememberSaveable { mutableStateOf(false) }
-    var humanWins by rememberSaveable { mutableIntStateOf(0) }
-    var computerWins by rememberSaveable { mutableIntStateOf(0) }
+    // var humanWins by rememberSaveable { mutableIntStateOf(0) }
+    // var computerWins by rememberSaveable { mutableIntStateOf(0) }
     var canThrow by rememberSaveable { mutableStateOf(true) }
     var playerThrowCount by rememberSaveable { mutableIntStateOf(0) }
     var isLastThrow by rememberSaveable { mutableStateOf(false) } // Track if it's the last throw
+    var isGameOver by rememberSaveable { mutableStateOf(false) }
 
     fun resetDice() {
         playerDice = rollDice()
@@ -96,19 +102,21 @@ fun GameScreen(
                 newComputerTotalScore > newPlayerTotalScore -> "Computer"
                 else -> "Tie"
             }
+            isGameOver = true
             showWinDialog = true
         } else if (playerTotalScore >= targetScore || computerTotalScore >= targetScore) {
             winner = when {
                 newPlayerTotalScore > newComputerTotalScore -> {
-                    humanWins++
+                    humanWins.intValue++ // Update the MutableState<Int>
                     "Player"
                 }
                 newComputerTotalScore > newPlayerTotalScore -> {
-                    computerWins++
+                    computerWins.intValue++ // Update the MutableState<Int>
                     "Computer"
                 }
                 else -> "Tie"
             }
+            isGameOver = true
             showWinDialog = true
         } else {
             // Reset and continue to the next round
@@ -129,7 +137,7 @@ fun GameScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "H:$humanWins/C:$computerWins",
+                text = "H:${humanWins.intValue}/C:${computerWins.intValue}",
                 fontSize = 20.sp
             )
             Row {
@@ -189,7 +197,7 @@ fun GameScreen(
             Button(onClick = {
                 // Handle scoring and winner check
                 handleScoreAndWinner()
-            }, enabled = true) {
+            }, enabled = canThrow) {
                 Text("Score")
             }
         }
@@ -207,6 +215,11 @@ fun GameScreen(
                             "Player" -> "Player wins!"
                             "Computer" -> "Computer wins!"
                             else -> "Game Over"
+                        },
+                        color = when (winner) {
+                            "Player" -> Color.Green
+                            "Computer" -> Color.Red
+                            else -> Color.Black
                         }
                     )
                     Spacer(modifier = Modifier.height(8.dp))
@@ -216,9 +229,10 @@ fun GameScreen(
             confirmButton = {
                 Button(onClick = {
                     showWinDialog = false
+                    isGameOver = false
                     playerTotalScore = 0
                     computerTotalScore = 0
-                    showWinDialog = false
+                    resetDice()
                     isTieBreaker = false
                     playerThrowCount = 0
                 }) {
@@ -228,6 +242,7 @@ fun GameScreen(
             dismissButton = {
                 Button(onClick = {
                     showWinDialog = false
+                    isGameOver = false
                     playerTotalScore = 0
                     computerTotalScore = 0
                     onBack()
