@@ -1,3 +1,5 @@
+package com.sameerasw.dicing
+
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.layout.*
@@ -17,7 +19,7 @@ import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import com.sameerasw.dicing.DiceRow
+import androidx.compose.ui.text.style.TextAlign
 import kotlin.random.Random
 
 @Composable
@@ -53,12 +55,11 @@ fun GameScreen(
     var showWinDialog by rememberSaveable { mutableStateOf(false) }
     var winner by rememberSaveable { mutableStateOf("") }
     var isTieBreaker by rememberSaveable { mutableStateOf(false) }
-    // var humanWins by rememberSaveable { mutableIntStateOf(0) }
-    // var computerWins by rememberSaveable { mutableIntStateOf(0) }
     var canThrow by rememberSaveable { mutableStateOf(true) }
     var playerThrowCount by rememberSaveable { mutableIntStateOf(0) }
-    var isLastThrow by rememberSaveable { mutableStateOf(false) } // Track if it's the last throw
+    var isLastThrow by rememberSaveable { mutableStateOf(false) }
     var isGameOver by rememberSaveable { mutableStateOf(false) }
+    var showGoBackText by rememberSaveable { mutableStateOf(false) } // New state variable
 
     fun resetDice() {
         playerDice = rollDice()
@@ -68,7 +69,7 @@ fun GameScreen(
         selectedDice = List(5) { false }
         reRollCount = 0
         playerThrowCount = 0
-        isLastThrow = false // Reset last throw state
+        isLastThrow = false
     }
 
     fun performComputerTurn(): List<Int> {
@@ -107,11 +108,11 @@ fun GameScreen(
         } else if (playerTotalScore >= targetScore || computerTotalScore >= targetScore) {
             winner = when {
                 newPlayerTotalScore > newComputerTotalScore -> {
-                    humanWins.intValue++ // Update the MutableState<Int>
+                    humanWins.intValue++
                     "Player"
                 }
                 newComputerTotalScore > newPlayerTotalScore -> {
-                    computerWins.intValue++ // Update the MutableState<Int>
+                    computerWins.intValue++
                     "Computer"
                 }
                 else -> "Tie"
@@ -124,91 +125,92 @@ fun GameScreen(
         }
     }
 
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceBetween
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+    // UI logic
+    if (!showGoBackText) { // Display the game content or the "Go Back" text
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(
-                text = "H:${humanWins.intValue}/C:${computerWins.intValue}",
-                fontSize = 20.sp
-            )
-            Row {
-                Text("A:$playerTotalScore", fontSize = 20.sp)
-                Spacer(modifier = Modifier.width(16.dp))
-                Text("B:$computerTotalScore", fontSize = 20.sp)
-            }
-        }
-
-        Column(horizontalAlignment = CenterHorizontally,
-            verticalArrangement = Arrangement.Center) {
-            Text("Computer Score: $computerScore", fontSize = 20.sp)
-            DiceRow(diceValues = computerDice, isPlayer = false)
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            Text("Player Score: $playerScore", fontSize = 20.sp)
-            DiceRow(
-                diceValues = playerDice,
-                isPlayer = true,
-                selectedDice = selectedDice,
-                onDiceSelected = { index, isSelected ->
-                    selectedDice = selectedDice.toMutableList().apply { this[index] = isSelected }
-                },
-                enableSelection = canThrow
-            )
-        }
-
-        // Bottom - Buttons
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceAround,
-            verticalAlignment = Alignment.Bottom
-        ) {
-            Button(onClick = {
-                if (playerThrowCount < 1) {
-                    playerDice = rerollDice(playerDice, selectedDice)
-                    playerScore = playerDice.sum()
-                    selectedDice = List(5) { false }
-                    reRollCount++
-                    playerThrowCount++
-
-                    // Check if it's the last throw
-                    if (playerThrowCount == 1) {
-                        isLastThrow = true
-                    }
-                } else {
-                    // Automatically handle score and winner check after last throw
-                    handleScoreAndWinner()
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "H:${humanWins.intValue}/C:${computerWins.intValue}",
+                    fontSize = 20.sp
+                )
+                Row {
+                    Text("A:$playerTotalScore", fontSize = 20.sp)
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Text("B:$computerTotalScore", fontSize = 20.sp)
                 }
-            }) {
-                Text(if (isLastThrow) "Throw and Score" else "Throw")
             }
 
-            Button(onClick = {
-                // Handle scoring and winner check
-                handleScoreAndWinner()
-            }, enabled = canThrow) {
-                Text("Score")
+            Column(horizontalAlignment = CenterHorizontally,
+                verticalArrangement = Arrangement.Center) {
+                Text("Computer Score: $computerScore", fontSize = 20.sp)
+                DiceRow(diceValues = computerDice, isPlayer = false)
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                Text("Player Score: $playerScore", fontSize = 20.sp)
+                DiceRow(
+                    diceValues = playerDice,
+                    isPlayer = true,
+                    selectedDice = selectedDice,
+                    onDiceSelected = { index, isSelected ->
+                        selectedDice = selectedDice.toMutableList().apply { this[index] = isSelected }
+                    },
+                    enableSelection = canThrow
+                )
+            }
+
+            // Bottom - Buttons
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.SpaceAround,
+                verticalAlignment = Alignment.Bottom
+            ) {
+                Button(onClick = {
+                    if (playerThrowCount < 1) {
+                        playerDice = rerollDice(playerDice, selectedDice)
+                        playerScore = playerDice.sum()
+                        selectedDice = List(5) { false }
+                        reRollCount++
+                        playerThrowCount++
+
+                        // Check if it's the last throw
+                        if (playerThrowCount == 1) {
+                            isLastThrow = true
+                        }
+                    } else {
+                        // Automatically handle score and winner check after last throw
+                        handleScoreAndWinner()
+                    }
+                }) {
+                    Text(if (isLastThrow) "Throw and Score" else "Throw")
+                }
+
+                Button(onClick = {
+                    // Handle scoring and winner check
+                    handleScoreAndWinner()
+                }, enabled = canThrow) {
+                    Text("Score")
+                }
             }
         }
-    }
 
-    if (showWinDialog) {
-        AlertDialog(
-            onDismissRequest = {  }, // Do nothing
-            title = { Text("Game Over") },
-            text = {
-                Column {
+        if (showWinDialog) {
+            AlertDialog(
+                onDismissRequest = {  }, // Do nothing on dismiss
+                title = { Text("Game Over") },
+                text = {
                     Text(
                         when (winner) {
                             "Tie" -> "It's a tie!"
@@ -222,34 +224,30 @@ fun GameScreen(
                             else -> Color.Black
                         }
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text("Continue Playing?")
+                },
+                confirmButton = {
+                    Button(onClick = {
+                        showWinDialog = false
+                        isGameOver = true
+                        showGoBackText = true // Activate the "Go Back" text
+
+                    }) {
+                        Text("OK")
+                    }
                 }
-            },
-            confirmButton = {
-                Button(onClick = {
-                    showWinDialog = false
-                    isGameOver = false
-                    playerTotalScore = 0
-                    computerTotalScore = 0
-                    resetDice()
-                    isTieBreaker = false
-                    playerThrowCount = 0
-                }) {
-                    Text("Continue")
-                }
-            },
-            dismissButton = {
-                Button(onClick = {
-                    showWinDialog = false
-                    isGameOver = false
-                    playerTotalScore = 0
-                    computerTotalScore = 0
-                    onBack()
-                }) {
-                    Text("Back to Menu")
-                }
-            }
-        )
+            )
+        }
+    } else { // if (!showGame)
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = "Go back to play again!",
+                textAlign = TextAlign.Center,
+                fontSize = 24.sp
+            )
+        }
     }
 }
