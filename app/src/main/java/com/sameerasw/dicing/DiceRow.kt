@@ -17,7 +17,8 @@ fun DiceRow(
     isPlayer: Boolean,
     selectedDice: List<Boolean> = List(5) { false },
     onDiceSelected: (Int, Boolean) -> Unit = { _, _ -> },
-    enableSelection: Boolean = true
+    enableSelection: Boolean = true,
+    enableSelectionFlag: Boolean = true// Disable checkbox
 ) {
     Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
         diceValues.forEachIndexed { index, value ->
@@ -31,7 +32,7 @@ fun DiceRow(
                                 onDiceSelected(index, isChecked)
                             }
                         },
-                        enabled = enableSelection
+                        enabled = enableSelection && enableSelectionFlag//Disable during Tiebreaker
                     )
                 }
             }

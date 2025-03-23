@@ -98,6 +98,7 @@ fun GameScreen(
 
         if (playerTotalScore >= targetScore && computerTotalScore >= targetScore && playerTotalScore == computerTotalScore) {
             isTieBreaker = true
+            canThrow = false
             showWinDialog = true
             winner = "Tie"
             return
@@ -124,6 +125,7 @@ fun GameScreen(
                 }
                 else -> {
                     isTieBreaker = true
+                    canThrow = false
                     showWinDialog = true
                     "Tie"
                 }
@@ -203,14 +205,14 @@ fun GameScreen(
                         // Automatically handle score and winner check after last throw
                         handleScoreAndWinner()
                     }
-                }) {
+                }, enabled = canThrow) {
                     Text(if (isLastThrow) "Throw and Score" else "Throw")
                 }
 
                 Button(onClick = {
                     // Handle scoring and winner check
                     handleScoreAndWinner()
-                }, enabled = canThrow) {
+                }) {
                     Text("Score")
                 }
             }
