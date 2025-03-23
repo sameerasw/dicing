@@ -7,10 +7,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.sameerasw.dicing.DiceLogic.rerollDice
+import com.sameerasw.dicing.DiceLogic.rollDice
+import com.sameerasw.dicing.GameLogic.computerReroll
 import kotlin.random.Random
 
 @Composable
@@ -30,9 +32,9 @@ fun GameScreen(onBack: () -> Unit) {
         }
     }
 
-    var playerDice by remember { mutableStateOf(rollDice()) } // Initial roll
+    var playerDice by remember { mutableStateOf(rollDice()) }
     var playerScore by remember { mutableStateOf(playerDice.sum()) }
-    var computerDice by remember { mutableStateOf(rollDice()) } // Initial roll
+    var computerDice by remember { mutableStateOf(rollDice()) }
     var computerScore by remember { mutableStateOf(computerDice.sum()) }
     var selectedDice by remember { mutableStateOf(List(5) { false }) }
     var rerollCount by remember { mutableStateOf(0) }
@@ -40,6 +42,7 @@ fun GameScreen(onBack: () -> Unit) {
     var computerTotalScore by remember { mutableStateOf(0) }
     var showWinDialog by remember { mutableStateOf(false) }
     var winner by remember { mutableStateOf("") }
+    var computerRerollCount by remember { mutableStateOf(0) } // Track computer rerolls
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -48,6 +51,11 @@ fun GameScreen(onBack: () -> Unit) {
     ) {
         Text("Player Total Score: $playerTotalScore", fontSize = 20.sp)
         Text("Computer Total Score: $computerTotalScore", fontSize = 20.sp)
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        Text("Computer Score: $computerScore", fontSize = 20.sp)
+        DiceRow(diceValues = computerDice, isPlayer = false)
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -71,6 +79,17 @@ fun GameScreen(onBack: () -> Unit) {
             Spacer(modifier = Modifier.width(16.dp))
 
             Button(onClick = {
+                var computerDiceTemp = computerDice
+                var computerRerollCountTemp = 0
+                while (computerRerollCountTemp < 2 && Random.nextBoolean()) {
+                    val (newDice, newCount) = computerReroll(computerDiceTemp, computerRerollCountTemp)
+                    computerDiceTemp = newDice
+                    computerRerollCountTemp = newCount
+                }
+
+                computerDice = computerDiceTemp
+                computerScore = computerDice.sum()
+
                 playerTotalScore += playerScore
                 computerTotalScore += computerScore
 
@@ -96,10 +115,6 @@ fun GameScreen(onBack: () -> Unit) {
             }
         }
 
-        Spacer(modifier = Modifier.height(32.dp))
-
-        Text("Computer Score: $computerScore", fontSize = 20.sp)
-        DiceRow(diceValues = computerDice, isPlayer = false)
     }
 
     if (showWinDialog) {
@@ -124,32 +139,4 @@ fun GameScreen(onBack: () -> Unit) {
             }
         )
     }
-}
-
-@Composable
-fun DiceRow(diceValues: List<Int>, isPlayer: Boolean, selectedDice: List<Boolean> = List(5) { false }, onDiceSelected: (Int, Boolean) -> Unit = { _, _ -> }, enableSelection: Boolean = true) {
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        diceValues.forEachIndexed { index, value ->
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Dice(value = value, tint = ColorFilter.tint(MaterialTheme.colorScheme.primary))
-                if (isPlayer) {
-                    Checkbox(checked = selectedDice[index], onCheckedChange = { isChecked ->
-                        if (enableSelection) {
-                            onDiceSelected(index, isChecked)
-                        }
-                    }, enabled = enableSelection)
-                }
-            }
-        }
-    }
-}
-
-fun rerollDice(diceValues: List<Int>, selectedDice: List<Boolean>): List<Int> {
-    return diceValues.mapIndexed { index, value ->
-        if (selectedDice[index]) Random.nextInt(1, 7) else value
-    }
-}
-
-fun rollDice(): List<Int> {
-    return List(5) { Random.nextInt(1, 7) }
 }
