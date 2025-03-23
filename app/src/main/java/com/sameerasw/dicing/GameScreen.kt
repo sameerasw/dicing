@@ -55,10 +55,11 @@ fun GameScreen(
     var showWinDialog by rememberSaveable { mutableStateOf(false) }
     var winner by rememberSaveable { mutableStateOf("") }
     var isTieBreaker by rememberSaveable { mutableStateOf(false) }
+    var canThrow by rememberSaveable { mutableStateOf(true) }
     var playerThrowCount by rememberSaveable { mutableIntStateOf(0) }
     var isLastThrow by rememberSaveable { mutableStateOf(false) }
     var isGameOver by rememberSaveable { mutableStateOf(false) }
-    var showGoBackText by rememberSaveable { mutableStateOf(false) } // New state variable
+    var showGoBackText by rememberSaveable { mutableStateOf(false) }
 
     fun resetDice() {
         playerDice = rollDice()
@@ -95,7 +96,15 @@ fun GameScreen(
         playerTotalScore = newPlayerTotalScore
         computerTotalScore = newComputerTotalScore
 
+        if (playerTotalScore >= targetScore && computerTotalScore >= targetScore && playerTotalScore == computerTotalScore) {
+            isTieBreaker = true
+            showWinDialog = true
+            winner = "Tie"
+            return
+        }
+
         if (isTieBreaker) {
+            //Tie breaker round
             winner = when {
                 newPlayerTotalScore > newComputerTotalScore -> "Player"
                 newComputerTotalScore > newPlayerTotalScore -> "Computer"
@@ -113,7 +122,11 @@ fun GameScreen(
                     computerWins.intValue++
                     "Computer"
                 }
-                else -> "Tie"
+                else -> {
+                    isTieBreaker = true
+                    showWinDialog = true
+                    "Tie"
+                }
             }
             isGameOver = true
             showWinDialog = true
@@ -163,6 +176,7 @@ fun GameScreen(
                     onDiceSelected = { index, isSelected ->
                         selectedDice = selectedDice.toMutableList().apply { this[index] = isSelected }
                     },
+                    enableSelection = canThrow
                 )
             }
 
@@ -182,7 +196,6 @@ fun GameScreen(
                         reRollCount++
                         playerThrowCount++
 
-                        // Check if it's the last throw
                         if (playerThrowCount == 1) {
                             isLastThrow = true
                         }
@@ -197,36 +210,45 @@ fun GameScreen(
                 Button(onClick = {
                     // Handle scoring and winner check
                     handleScoreAndWinner()
-                }) {
+                }, enabled = canThrow) {
                     Text("Score")
                 }
             }
         }
 
         if (showWinDialog) {
+            val dialogText = if (isTieBreaker) "Score most points to win!" else
+                when (winner) {
+                    "Tie" -> "It's a tie!"
+                    "Player" -> "Player wins!"
+                    "Computer" -> "Computer wins!"
+                    else -> "Game Over"
+                }
+            val textColor = when (winner) {
+                "Player" -> Color.Green
+                "Computer" -> Color.Red
+                else -> MaterialTheme.colorScheme.primary
+            }
             AlertDialog(
-                onDismissRequest = {  }, // Do nothing on dismiss
-                title = { Text("Game Over") },
+                onDismissRequest = { showWinDialog = false },
+                title = { Text("Target Reached") },
                 text = {
                     Text(
-                        when (winner) {
-                            "Tie" -> "It's a tie!"
-                            "Player" -> "Player wins!"
-                            "Computer" -> "Computer wins!"
-                            else -> "Game Over"
-                        },
-                        color = when (winner) {
-                            "Player" -> Color.Green
-                            "Computer" -> Color.Red
-                            else -> Color.Black
-                        }
+                        text = dialogText,
+                        color = textColor
                     )
                 },
                 confirmButton = {
                     Button(onClick = {
                         showWinDialog = false
                         isGameOver = true
-                        showGoBackText = true
+                        if (isTieBreaker) {
+                            isTieBreaker = false
+                            resetDice()
+                        }
+                        else{
+                            showGoBackText = true // Activate the "Go Back" text
+                        }
 
                     }) {
                         Text("OK")
@@ -234,14 +256,14 @@ fun GameScreen(
                 }
             )
         }
-    } else { // if (!showGame)
+    } else {
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "Go back to play again!",
+                text = "Go Back to Restart",
                 textAlign = TextAlign.Center,
                 fontSize = 24.sp
             )
