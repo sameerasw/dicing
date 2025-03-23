@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.sp
 import com.sameerasw.dicing.DiceLogic.rerollDice
 import com.sameerasw.dicing.DiceLogic.rollDice
 import com.sameerasw.dicing.GameLogic.computerReroll
+import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import kotlin.random.Random
 
 @Composable
@@ -48,7 +49,8 @@ fun GameScreen(
     var winner by rememberSaveable { mutableStateOf("") }
     var computerRerollCount by rememberSaveable { mutableStateOf(0) }
     var isTieBreaker by rememberSaveable { mutableStateOf(false) }
-
+    var humanWins by rememberSaveable { mutableStateOf(0) }
+    var computerWins by rememberSaveable { mutableStateOf(0) }
 
     fun resetDice() {
         playerDice = rollDice()
@@ -61,31 +63,48 @@ fun GameScreen(
 
     Column(
         modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        horizontalAlignment = CenterHorizontally,
+        verticalArrangement = Arrangement.SpaceBetween // Distribute space
     ) {
-        Text("Player Total Score: $playerTotalScore", fontSize = 20.sp)
-        Text("Computer Total Score: $computerTotalScore", fontSize = 20.sp)
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        Text("Computer Score: $computerScore", fontSize = 20.sp)
-        DiceRow(diceValues = computerDice, isPlayer = false)
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text("Player Score: $playerScore", fontSize = 20.sp)
-        DiceRow(
-            diceValues = playerDice,
-            isPlayer = true,
-            selectedDice = selectedDice,
-            onDiceSelected = { index, isSelected ->
-                selectedDice = selectedDice.toMutableList().apply { this[index] = isSelected }
-            },
-            enableSelection = rerollCount < 2
+        // Top - Win Count
+        Text(
+            modifier = Modifier.align(CenterHorizontally), // Center horizontally
+            text = "H:$humanWins/C:$computerWins",
+            fontSize = 20.sp
         )
+        Column(horizontalAlignment = CenterHorizontally,
+            verticalArrangement = Arrangement.Center) {
+            Text("Player Total Score: $playerTotalScore", fontSize = 20.sp)
+            Text("Computer Total Score: $computerTotalScore", fontSize = 20.sp)
 
-        Row {
+            Spacer(modifier = Modifier.height(32.dp))
+
+            Text("Computer Score: $computerScore", fontSize = 20.sp)
+            DiceRow(diceValues = computerDice, isPlayer = false)
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            Text("Player Score: $playerScore", fontSize = 20.sp)
+            DiceRow(
+                diceValues = playerDice,
+                isPlayer = true,
+                selectedDice = selectedDice,
+                onDiceSelected = { index, isSelected ->
+                    selectedDice = selectedDice.toMutableList().apply { this[index] = isSelected }
+                },
+                enableSelection = rerollCount < 2
+            )
+        }
+
+
+        // Bottom - Buttons
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceAround,
+            verticalAlignment = Alignment.Bottom
+        ) {
             Button(onClick = {
                 if (rerollCount < 2 && selectedDice.any { it }) {
                     playerDice = rerollDice(playerDice, selectedDice)
@@ -94,10 +113,8 @@ fun GameScreen(
                     rerollCount++
                 }
             }, enabled = rerollCount < 2 && selectedDice.any { it }) {
-                Text("Reroll Selected")
+                Text(if (rerollCount > 1) "No More Re-rolls" else if (selectedDice.none { it }) "Select to Re-roll" else "Re-roll selected")
             }
-
-            Spacer(modifier = Modifier.width(16.dp))
 
             Button(onClick = {
                 // Computer's Turn
@@ -129,8 +146,14 @@ fun GameScreen(
                     }
                     else {
                         winner = when {
-                            newPlayerTotalScore > newComputerTotalScore -> "Player"
-                            newComputerTotalScore > newPlayerTotalScore -> "Computer"
+                            newPlayerTotalScore > newComputerTotalScore -> {
+                                humanWins++
+                                "Player"
+                            }
+                            newComputerTotalScore > newPlayerTotalScore -> {
+                                computerWins++
+                                "Computer"
+                            }
                             else -> "Tie"
                         }
                         showWinDialog = true
@@ -148,19 +171,20 @@ fun GameScreen(
 
     if (showWinDialog) {
         AlertDialog(
-            onDismissRequest = {
-                showWinDialog = false
-                playerTotalScore = 0
-                computerTotalScore = 0
-                onBack()
-            },
+            onDismissRequest = { showWinDialog = false },
             title = { Text("Game Over") },
             text = {
-                when (winner) {
-                    "Tie" -> Text("It's a tie! Rolling Again.")
-                    "Player" -> Text("Player wins!")
-                    "Computer" -> Text("Computer wins!")
-                    else -> Text("Game Over")
+                Column {
+                    Text(
+                        when (winner) {
+                            "Tie" -> "It's a tie!"
+                            "Player" -> "Player wins!"
+                            "Computer" -> "Computer wins!"
+                            else -> "Game Over"
+                        }
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("Continue Playing?")
                 }
             },
             confirmButton = {
@@ -168,9 +192,20 @@ fun GameScreen(
                     showWinDialog = false
                     playerTotalScore = 0
                     computerTotalScore = 0
+                    resetDice()
+                    isTieBreaker = false
+                }) {
+                    Text("Continue")
+                }
+            },
+            dismissButton = {
+                Button(onClick = {
+                    showWinDialog = false
+                    playerTotalScore = 0
+                    computerTotalScore = 0
                     onBack()
                 }) {
-                    Text("OK")
+                    Text("Back to Menu")
                 }
             }
         )
