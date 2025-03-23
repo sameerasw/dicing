@@ -164,7 +164,11 @@ fun GameScreen(
             Column(horizontalAlignment = CenterHorizontally,
                 verticalArrangement = Arrangement.Center) {
                 Text("Computer Score: $computerScore", fontSize = 20.sp)
-                DiceRow(diceValues = computerDice, isPlayer = false)
+                DiceRow(
+                    diceValues = computerDice,
+                    isPlayer = false,
+                    diceColor = MaterialTheme.colorScheme.secondary
+                )
 
                 Spacer(modifier = Modifier.height(32.dp))
 
@@ -176,7 +180,8 @@ fun GameScreen(
                     onDiceSelected = { index, isSelected ->
                         selectedDice = selectedDice.toMutableList().apply { this[index] = isSelected }
                     },
-                    enableSelection = canThrow
+                    enableSelection = canThrow,
+                    diceColor = MaterialTheme.colorScheme.primary
                 )
             }
 
@@ -200,7 +205,7 @@ fun GameScreen(
                             isLastThrow = true
                         }
                     } else {
-                        // Automatically handle score and winner check after last throw
+                        // Automatically handle score and winner check
                         handleScoreAndWinner()
                     }
                 }, enabled = canThrow) {
