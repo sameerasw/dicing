@@ -23,6 +23,7 @@ class GameActivity : ComponentActivity() {
         // Get the initial scores from the intent
         val initialHumanWins = intent.getIntExtra("humanWins", 0)
         val initialComputerWins = intent.getIntExtra("computerWins", 0)
+        val useSmartStrategy = intent.getBooleanExtra("useSmartStrategy", true)
 
         setContent {
             DicingTheme {
@@ -41,6 +42,7 @@ class GameActivity : ComponentActivity() {
                             targetScore = targetScore,
                             humanWins = humanWinsState,
                             computerWins = computerWinsState,
+                            useSmartStrategy = useSmartStrategy,
                             onBack = {
                                 // Send the updated scores back to the main activity
                                 val resultIntent = Intent()

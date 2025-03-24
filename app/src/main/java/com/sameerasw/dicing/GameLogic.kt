@@ -1,34 +1,31 @@
 package com.sameerasw.dicing
 
 import com.sameerasw.dicing.DiceLogic.rerollDice
+import kotlin.random.Random
 
 object GameLogic {
     /**
      * Computer Player Strategy for Dice Rerolling
      *
-     * The computer uses a simple strategy to maximize its score by rerolling
-     * dice with low values (below 3). This strategy is based on the fact to
-     * try to keep the roll above the average count which is 3.5. So the computer
-     * has a better chance of improving its score by rerolling dice with values
+     * Strategy 1 (Smart): Reroll dice with values below 3
+     * The computer uses a strategy to maximize its score by rerolling
+     * dice with low values (below 3). This is based on the fact that
+     * the average value of a die is 3.5, so rerolling dice with values below 3
+     * has a higher chance of improving the score.
      *
-     * algorithm:
-     * 1. Check if maximum reroll count (2) has been reached
-     * 2. Identify all dice with low values
-     * 3. Reroll these low-value dices
-     *
-     * Advantages:
-     * - Simple and easy to understand
-     * - Efficient
-     * - High probability of improving score
-     * - Easy to implement
+     * Strategy 2 (Random): Randomly decide which dice to reroll
+     * The computer randomly selects dice to reroll without any specific strategy.
+     * This makes the game easier(allegedly... ) for the player as the computer
      *
      * @param diceValues Current dice values of the computer
-     * @param rerollCount Current reroll countup to 2
+     * @param rerollCount Current reroll count up to 2
+     * @param useSmartStrategy Whether to use the smart strategy
      * @return Pair New dice values and the reroll count
      */
     fun computerReroll(
         diceValues: List<Int>,
         rerollCount: Int,
+        useSmartStrategy: Boolean = true
     ): Pair<List<Int>, Int> {
         // Check for max reroll count
         if (rerollCount >= 2) {
@@ -39,11 +36,21 @@ object GameLogic {
         val diceToReroll = MutableList(5) { false }
         var shouldReroll = false
 
-        // Mark dice with values below 3 for rerolling
-        diceValues.forEachIndexed { index, value ->
-            if (value < 3) {
-                diceToReroll[index] = true
-                shouldReroll = true
+        if (useSmartStrategy) {
+            // Smart Strategy: Mark dice with values below 3 for rerolling
+            diceValues.forEachIndexed { index, value ->
+                if (value < 3) {
+                    diceToReroll[index] = true
+                    shouldReroll = true
+                }
+            }
+        } else {
+            // Random Strategy: Randomly decide which dice to reroll (easier mode)
+            diceValues.forEachIndexed { index, _ ->
+                if (Random.nextBoolean()) {
+                    diceToReroll[index] = true
+                    shouldReroll = true
+                }
             }
         }
 

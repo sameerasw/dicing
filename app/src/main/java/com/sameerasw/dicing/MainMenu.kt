@@ -13,10 +13,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun MainMenu(humanWins: Int, computerWins: Int, onNavigateToGame: (Int) -> Unit) {
+fun MainMenu(humanWins: Int, computerWins: Int, onNavigateToGame: (Int, Boolean) -> Unit) {
     var showDialog by rememberSaveable { mutableStateOf(false) }
     var targetScore by rememberSaveable { mutableStateOf("101") }
     var errorMessage by rememberSaveable { mutableStateOf("") }
+    var useSmartStrategy by rememberSaveable { mutableStateOf(true) }
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -63,14 +64,40 @@ fun MainMenu(humanWins: Int, computerWins: Int, onNavigateToGame: (Int) -> Unit)
             }
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                text = "Difficulty: ${if(useSmartStrategy) "Hard" else "Easy"}",
+                modifier = Modifier.weight(1f)
+            )
+            Switch(
+                checked = useSmartStrategy,
+                onCheckedChange = { useSmartStrategy = it }
+            )
+        }
+
+        Text(
+            text = if (useSmartStrategy)
+                "Computer will strategically reroll low dice"
+            else
+                "Computer will randomly reroll dice",
+            fontSize = 12.sp,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+            modifier = Modifier.padding(top = 4.dp)
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         Button(onClick = {
             val score = targetScore.toIntOrNull()
             if (score == null || score <= 0) {
                 errorMessage = "Please enter a valid positive number"
             } else {
-                onNavigateToGame(score)
+                onNavigateToGame(score, useSmartStrategy)
             }
         }) {
             Text(text = "New Game")

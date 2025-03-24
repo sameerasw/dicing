@@ -28,6 +28,7 @@ fun GameScreen(
     targetScore: Int,
     humanWins: MutableIntState,
     computerWins: MutableIntState,
+    useSmartStrategy: Boolean = true,
     onBack: () -> Unit, // Callback to navigate back to the main menu
 ) {
     val onBackPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher // handles back button
@@ -81,7 +82,11 @@ fun GameScreen(
         var computerRerollCountTemp = 0
         while (computerRerollCountTemp < 2 && Random.nextBoolean()) {
             // Reroll the dice up to 2 times
-            val (newDice, newCount) = computerReroll(computerDiceTemp, computerRerollCountTemp)
+            val (newDice, newCount) = computerReroll(
+                computerDiceTemp,
+                computerRerollCountTemp,
+                useSmartStrategy
+            )
             computerDiceTemp = newDice
             computerRerollCountTemp = newCount
         }
@@ -163,6 +168,11 @@ fun GameScreen(
                 Text(
                     text = "H:${humanWins.intValue}/C:${computerWins.intValue}",
                     fontSize = 20.sp
+                )
+                Text(
+                    text = "Mode: ${if (useSmartStrategy) "Hard" else "Easy"}",
+                    fontSize = 14.sp,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                 )
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(imageVector = Icons.Filled.Person, contentDescription = "Player", modifier = Modifier.size(24.dp))
@@ -247,7 +257,7 @@ fun GameScreen(
 
         if (showWinDialog) {
             val dialogText = if (isTieBreaker) "Score most points to win!" else
-                // Show the winner
+            // Show the winner
                 when (winner) {
                     "Tie" -> "It's a tie!"
                     "Player" -> "You win!"
