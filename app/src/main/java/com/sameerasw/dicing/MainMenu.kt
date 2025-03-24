@@ -1,5 +1,6 @@
 package com.sameerasw.dicing
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -84,35 +85,48 @@ fun MainMenu(humanWins: Int, computerWins: Int, onNavigateToGame: (Int, Boolean)
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Difficulty switch
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth()
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.inverseOnSurface, shape = MaterialTheme.shapes.medium)
+                        .padding(16.dp)
                 ) {
-                    Text(
-                        text = "Difficulty: ${if(useSmartStrategy) "Hard" else "Easy"}",
-                        modifier = Modifier.weight(1f)
-                    )
-                    Switch(
-                        checked = useSmartStrategy,
-                        onCheckedChange = { useSmartStrategy = it }
-                    )
-                }
 
-                Text(
-                    text = if (useSmartStrategy)
-                        "Computer will strategically reroll low dice"
-                    else
-                        "Computer will randomly reroll dice",
-                    fontSize = 12.sp,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                    modifier = Modifier.padding(top = 4.dp)
-                )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(horizontal = 32.dp)
+                    ) {
+                        Text(
+                            text = "Difficulty: ${if(useSmartStrategy) "Hard" else "Easy"}",
+                            modifier = Modifier.weight(1f)
+                        )
+                        Switch(
+                            checked = useSmartStrategy,
+                            onCheckedChange = { useSmartStrategy = it }
+                        )
+                    }
+
+                    Text(
+                        text = if (useSmartStrategy)
+                            "Computer will strategically reroll low dice"
+                        else
+                            "Computer will randomly reroll dice",
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+
+                }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Options
                 Row {
-                    Button(onClick = { showDialog = true }) {
+                    OutlinedButton(
+                        onClick = { showDialog = true },
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.secondary),
+                    ) {
                         Text(text = "About")
                     }
 
