@@ -27,7 +27,12 @@ class GameActivity : ComponentActivity() {
 
         setContent {
             DicingTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                    topBar = {
+                        DicingTopBar(title = "Playing to ${intent.getIntExtra("targetScore", 101)}")
+                    },
+                ) { innerPadding ->
                     Box(
                         modifier = Modifier
                             .fillMaxSize()

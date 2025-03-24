@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun MainMenu(humanWins: Int, computerWins: Int, onNavigateToGame: (Int, Boolean) -> Unit) {
+    // Main menu screen with new game and about buttons
     var showDialog by rememberSaveable { mutableStateOf(false) }
     var targetScore by rememberSaveable { mutableStateOf("101") }
     var errorMessage by rememberSaveable { mutableStateOf("") }
@@ -36,6 +37,7 @@ fun MainMenu(humanWins: Int, computerWins: Int, onNavigateToGame: (Int, Boolean)
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        // Display the current wins
         Text(
             text = "Wins: H:$humanWins /C:$computerWins",
             textAlign = TextAlign.Center,
@@ -45,6 +47,7 @@ fun MainMenu(humanWins: Int, computerWins: Int, onNavigateToGame: (Int, Boolean)
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        // Target score input field
         OutlinedTextField(
             value = targetScore,
             onValueChange = {
@@ -66,6 +69,7 @@ fun MainMenu(humanWins: Int, computerWins: Int, onNavigateToGame: (Int, Boolean)
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        // Difficulty switch
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth()
@@ -92,6 +96,7 @@ fun MainMenu(humanWins: Int, computerWins: Int, onNavigateToGame: (Int, Boolean)
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        // Options
         Button(onClick = {
             val score = targetScore.toIntOrNull()
             if (score == null || score <= 0) {
