@@ -15,12 +15,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.sameerasw.dicing.ui.theme.DicingTheme
 
-const val RESULT_OK = -1
 class GameActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
+        // Get the initial scores from the intent
         val initialHumanWins = intent.getIntExtra("humanWins", 0)
         val initialComputerWins = intent.getIntExtra("computerWins", 0)
 
@@ -42,6 +42,7 @@ class GameActivity : ComponentActivity() {
                             humanWins = humanWinsState,
                             computerWins = computerWinsState,
                             onBack = {
+                                // Send the updated scores back to the main activity
                                 val resultIntent = Intent()
                                 resultIntent.putExtra("humanWins", humanWinsState.intValue)
                                 resultIntent.putExtra("computerWins", computerWinsState.intValue)

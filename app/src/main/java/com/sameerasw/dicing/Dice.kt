@@ -10,6 +10,8 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun Dice(value: Int, tint: ColorFilter) {
+
+    // mapping the dice value to the corresponding drawable resource
     val imageResource = when (value) {
         1 -> R.drawable.dice1
         2 -> R.drawable.dice2

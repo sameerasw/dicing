@@ -28,12 +28,13 @@ fun GameScreen(
     targetScore: Int,
     humanWins: MutableIntState,
     computerWins: MutableIntState,
-    onBack: () -> Unit,
+    onBack: () -> Unit, // Callback to navigate back to the main menu
 ) {
-    val onBackPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
+    val onBackPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher // handles back button
     val lifecycleOwner = LocalLifecycleOwner.current
 
     DisposableEffect(lifecycleOwner, onBackPressedDispatcher) {
+        // Handle back button press
         val callback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 onBack()
@@ -41,7 +42,7 @@ fun GameScreen(
         }
         onBackPressedDispatcher?.addCallback(lifecycleOwner, callback)
         onDispose {
-            callback.remove()
+            callback.remove() // clean up when the effect is removed
         }
     }
 
@@ -63,6 +64,7 @@ fun GameScreen(
     var showGoBackText by rememberSaveable { mutableStateOf(false) }
 
     fun resetDice() {
+        // Reset the dice and scores
         playerDice = rollDice()
         playerScore = playerDice.sum()
         computerDice = rollDice()
@@ -74,9 +76,11 @@ fun GameScreen(
     }
 
     fun performComputerTurn(): List<Int> {
+        // Computer's turn - reroll the dice, up to 2 times of optional rerolls
         var computerDiceTemp = computerDice
         var computerRerollCountTemp = 0
         while (computerRerollCountTemp < 2 && Random.nextBoolean()) {
+            // Reroll the dice up to 2 times
             val (newDice, newCount) = computerReroll(computerDiceTemp, computerRerollCountTemp)
             computerDiceTemp = newDice
             computerRerollCountTemp = newCount
@@ -94,9 +98,11 @@ fun GameScreen(
         computerDice = newComputerDice
         computerScore = newComputerDice.sum()
 
+        // Update the total scores
         playerTotalScore = newPlayerTotalScore
         computerTotalScore = newComputerTotalScore
 
+        // Check if the game is over
         if (playerTotalScore >= targetScore && computerTotalScore >= targetScore && playerTotalScore == computerTotalScore) {
             isTieBreaker = true
             canThrow = false
@@ -125,6 +131,7 @@ fun GameScreen(
                     "Computer"
                 }
                 else -> {
+                    // Tie breaker round
                     isTieBreaker = true
                     canThrow = false
                     showWinDialog = true
@@ -240,13 +247,15 @@ fun GameScreen(
 
         if (showWinDialog) {
             val dialogText = if (isTieBreaker) "Score most points to win!" else
+                // Show the winner
                 when (winner) {
                     "Tie" -> "It's a tie!"
-                    "Player" -> "Player wins!"
-                    "Computer" -> "Computer wins!"
+                    "Player" -> "You win!"
+                    "Computer" -> "You lose!"
                     else -> "Game Over"
                 }
             val textColor = when (winner) {
+                // Color the text based on the winner
                 "Player" -> Color.Green
                 "Computer" -> Color.Red
                 else -> MaterialTheme.colorScheme.primary
@@ -281,10 +290,11 @@ fun GameScreen(
     } else {
         Column(
             modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
+            horizontalAlignment = CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
             Text(
+                // Show the "Go Back" text
                 text = "Go Back to Restart",
                 textAlign = TextAlign.Center,
                 fontSize = 24.sp
