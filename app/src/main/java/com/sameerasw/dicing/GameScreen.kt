@@ -158,6 +158,7 @@ fun GameScreen(
             horizontalAlignment = CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween
         ) {
+            // Top - Scores
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -170,7 +171,7 @@ fun GameScreen(
                     fontSize = 20.sp
                 )
                 Text(
-                    text = "Mode: ${if (useSmartStrategy) "Hard" else "Easy"}",
+                    text = "Mode: ${if (useSmartStrategy) "Hard" else "Easy"} | Target: $targetScore",
                     fontSize = 14.sp,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                 )
@@ -183,6 +184,7 @@ fun GameScreen(
                 }
             }
 
+            // Middle - Dice
             Column(horizontalAlignment = CenterHorizontally,
                 verticalArrangement = Arrangement.Center) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
