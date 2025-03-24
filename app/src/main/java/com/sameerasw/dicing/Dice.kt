@@ -2,6 +2,7 @@ package com.sameerasw.dicing
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
@@ -9,7 +10,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun Dice(value: Int, tint: ColorFilter) {
+fun Dice(value: Int, tint: ColorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)) {
+
+    // mapping the dice value to the corresponding drawable resource
     val imageResource = when (value) {
         1 -> R.drawable.dice1
         2 -> R.drawable.dice2
