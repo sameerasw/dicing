@@ -1,10 +1,21 @@
 package com.sameerasw.dicing
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -149,6 +160,8 @@ fun MainMenu(humanWins: Int, computerWins: Int, onNavigateToGame: (Int, Boolean)
         // Game Rules Section
         Spacer(modifier = Modifier.height(24.dp))
 
+        var rulesExpanded by rememberSaveable { mutableStateOf(false) }
+
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(
@@ -156,70 +169,97 @@ fun MainMenu(humanWins: Int, computerWins: Int, onNavigateToGame: (Int, Boolean)
             )
         ) {
             Column(
-                modifier = Modifier.padding(24.dp)
+                modifier = Modifier.padding(16.dp)
             ) {
-                Text(
-                    text = "Game Rules",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { rulesExpanded = !rulesExpanded }
+                        .padding(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = "Game Rules",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                    Icon(
+                        imageVector = if (rulesExpanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
+                        contentDescription = if (rulesExpanded) "Collapse" else "Expand",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
 
-                Text(
-                    text = "1. Players take turns rolling five dice.",
-                    fontSize = 14.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                AnimatedVisibility(
+                    visible = rulesExpanded,
+                    enter = fadeIn() + expandVertically(
+                        expandFrom = Alignment.Top
+                    ) + slideInVertically(),
+                    exit = fadeOut() + shrinkVertically(
+                        shrinkTowards = Alignment.Top
+                    ) + slideOutVertically()
+                ) {
+                    Column {
+                        Spacer(modifier = Modifier.height(8.dp))
 
-                Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "1. Players take turns rolling five dice.",
+                            fontSize = 14.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
 
-                Text(
-                    text = "2. After rolling, you can select specific dice to reroll (tap the checkbox).",
-                    fontSize = 14.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                        Spacer(modifier = Modifier.height(4.dp))
 
-                Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "2. After rolling, you can select specific dice to reroll (tap the checkbox).",
+                            fontSize = 14.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
 
-                Text(
-                    text = "3. You can reroll up to twice",
-                    fontSize = 14.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                        Spacer(modifier = Modifier.height(4.dp))
 
-                Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "3. You can reroll up to twice",
+                            fontSize = 14.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
 
-                Text(
-                    text = "4. The computer will decide what to do depending on difficulty.",
-                    fontSize = 14.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                        Spacer(modifier = Modifier.height(4.dp))
 
-                Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "4. The computer will decide what to do depending on difficulty.",
+                            fontSize = 14.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
 
-                Text(
-                    text = "5. Your score is the sum of all dice values.",
-                    fontSize = 14.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                        Spacer(modifier = Modifier.height(4.dp))
 
-                Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "5. Your score is the sum of all dice values.",
+                            fontSize = 14.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
 
-                Text(
-                    text = "6. First player to reach the target score wins.",
-                    fontSize = 14.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                        Spacer(modifier = Modifier.height(4.dp))
 
-                Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "6. First player to reach the target score wins.",
+                            fontSize = 14.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
 
-                Text(
-                    text = "7. If both players reach target score in the same round, a tiebreaker round is played.",
-                    fontSize = 14.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                        Spacer(modifier = Modifier.height(4.dp))
+
+                        Text(
+                            text = "7. If both players reach target score in the same round, a tiebreaker round is played.",
+                            fontSize = 14.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
             }
         }
 
