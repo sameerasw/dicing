@@ -8,15 +8,18 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import com.sameerasw.dicing.ui.theme.DicingTheme
@@ -63,17 +66,21 @@ class MainActivity : ComponentActivity() {
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(innerPadding),
+                            .padding(innerPadding)
+                            .background(
+                                MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)),
                         contentAlignment = Alignment.Center
                     ) {
                         // Background image with theme-based selection
                         Image(
-                            painter = painterResource(id = backgroundImage),
-                            contentDescription = "Background Image",
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.Crop,
-                            alignment = Alignment.Center
-                        )
+                                painter = painterResource(id = backgroundImage),
+                                contentDescription = "Background Image",
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .graphicsLayer(alpha = 0.6f),
+                                contentScale = ContentScale.Crop,
+                                alignment = Alignment.Center
+                            )
 
                         // Remember the scores
                         val humanWins = rememberSaveable { humanWinsState }

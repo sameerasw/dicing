@@ -1,5 +1,7 @@
 package com.sameerasw.dicing
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -21,6 +23,8 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -47,7 +51,7 @@ fun MainMenu(humanWins: Int, computerWins: Int, onNavigateToGame: (Int, Boolean)
         // Main Menu Box
         Box(modifier = Modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.background)
+            .background(MaterialTheme.colorScheme.background, shape = MaterialTheme.shapes.medium)
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -268,7 +272,7 @@ fun MainMenu(humanWins: Int, computerWins: Int, onNavigateToGame: (Int, Boolean)
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // all teh dices from 1 to 6 are displayed
+        // all the dices from 1 to 6 are displayed
         Row {
             for (i in 1..6) {
                 Dice(
@@ -282,16 +286,32 @@ fun MainMenu(humanWins: Int, computerWins: Int, onNavigateToGame: (Int, Boolean)
     }
 
     if (showDialog) {
+        val context = LocalContext.current
         AlertDialog(
             onDismissRequest = { showDialog = false },
             title = { Text("About") },
             text = {
                 Text(
-                    "Developed by Sameera Wijerathna. (20223140)\n" +
+                    "Developed by Sameera Wijerathna. (w1986636/ 20223140)\n" +
                             "I confirm that I understand what plagiarism is and have read and\n" +
                             "understood the section on Assessment Offences in the Essential Information for Students. The work that I have submitted is entirely my own. Any work from other authors is duly referenced and acknowledged.",
                     modifier = Modifier.padding(top = 16.dp)
                 )
+            },
+            dismissButton = {
+                Button(onClick = {
+                    val githubUrl = "https://github.com/sameerasw"
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(githubUrl))
+                    context.startActivity(intent)
+                }) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.github),
+                        contentDescription = "GitHub",
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("GitHub")
+                }
             },
             confirmButton = {
                 Button(onClick = { showDialog = false }) {
