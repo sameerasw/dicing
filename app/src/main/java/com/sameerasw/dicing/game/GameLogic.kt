@@ -1,4 +1,4 @@
-package com.sameerasw.dicing
+package com.sameerasw.dicing.game
 
 import com.sameerasw.dicing.DiceLogic.rerollDice
 import kotlin.random.Random
