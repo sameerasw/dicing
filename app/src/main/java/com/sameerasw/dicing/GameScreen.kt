@@ -2,6 +2,7 @@ package com.sameerasw.dicing
 
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -22,6 +23,11 @@ import kotlin.random.Random
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Star
+
+private val ColorScheme.success: Color
+    get() {
+        return Color(0xFF4CAF50)
+    }
 
 @Composable
 fun GameScreen(
@@ -267,11 +273,11 @@ fun GameScreen(
                     else -> "Game Over"
                 }
             val textColor = when (winner) {
-                // Color the text based on the winner
-                "Player" -> Color.Green
-                "Computer" -> Color.Red
-                else -> MaterialTheme.colorScheme.primary
-            }
+                    // Color the text based on the winner
+                    "Player" -> MaterialTheme.colorScheme.success
+                    "Computer" -> MaterialTheme.colorScheme.error
+                    else -> MaterialTheme.colorScheme.primary
+                }
             AlertDialog(
                 onDismissRequest = {
                     showWinDialog = false
@@ -288,7 +294,7 @@ fun GameScreen(
                 text = {
                     Text(
                         text = dialogText,
-                        color = textColor
+                        color = textColor,
                     )
                 },
                 confirmButton = {
