@@ -273,7 +273,17 @@ fun GameScreen(
                 else -> MaterialTheme.colorScheme.primary
             }
             AlertDialog(
-                onDismissRequest = { showWinDialog = false },
+                onDismissRequest = {
+                    showWinDialog = false
+                    isGameOver = true
+                    if (isTieBreaker) {
+                        isTieBreaker = false
+                        resetDice()
+                    }
+                    else{
+                        showGoBackText = true // Activate the "Go Back" text
+                    }
+                },
                 title = { Text("Target Reached") },
                 text = {
                     Text(
