@@ -7,6 +7,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -36,6 +37,11 @@ class GameActivity : ComponentActivity() {
 
         setContent {
             DicingTheme {
+                // Determine if we're in dark theme
+                val isDarkTheme = isSystemInDarkTheme()
+                // Select appropriate background based on theme
+                val backgroundImage = if (isDarkTheme) R.drawable.dicebg else R.drawable.dicebg_light
+
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                 ) { innerPadding ->
@@ -45,9 +51,9 @@ class GameActivity : ComponentActivity() {
                             .padding(innerPadding),
                         contentAlignment = Alignment.Center
                     ) {
-                        // Background image - placed first so it's behind everything
+                        // Background image with theme-based selection
                         Image(
-                            painter = painterResource(id = R.drawable.dicebg),
+                            painter = painterResource(id = backgroundImage),
                             contentDescription = "Background Image",
                             modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.Crop,
