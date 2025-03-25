@@ -201,6 +201,7 @@ fun MainMenu(humanWins: Int, computerWins: Int, onNavigateToGame: (Int, Boolean)
                     )
                 }
 
+                // https://developer.android.com/develop/ui/compose/animation/composables-modifiers
                 AnimatedVisibility(
                     visible = rulesExpanded,
                     enter = fadeIn() + expandVertically(

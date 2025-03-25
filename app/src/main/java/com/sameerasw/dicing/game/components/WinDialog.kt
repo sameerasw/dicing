@@ -26,6 +26,7 @@ fun WinDialog(
             else -> "Game Over"
         }
 
+    // Set text color based on the winner
     val textColor = when (winner) {
         "Player" -> success
         "Computer" -> MaterialTheme.colorScheme.error

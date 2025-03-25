@@ -43,7 +43,7 @@ fun Dice(
 
     val borderModifier = if (selected) {
         Modifier.border(
-            width = 4.dp,  // Increased from 2.dp to 4.dp
+            width = 4.dp,
             color = MaterialTheme.colorScheme.tertiary,
             shape = MaterialTheme.shapes.medium
         )
@@ -76,7 +76,7 @@ fun Dice(
             Box(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .offset(y = 4.dp)  // Position at the bottom edge of the dice
+                    .offset(y = 4.dp)
                     .size(24.dp)
                     .background(
                         color = MaterialTheme.colorScheme.tertiaryContainer,

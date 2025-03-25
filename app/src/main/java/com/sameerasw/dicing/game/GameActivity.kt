@@ -76,7 +76,7 @@ class GameActivity : ComponentActivity() {
                                 resultIntent.putExtra("humanWins", humanWinsState.intValue)
                                 resultIntent.putExtra("computerWins", computerWinsState.intValue)
                                 setResult(RESULT_OK, resultIntent)
-                                finish()
+                                finish() // important - close the GameActivity
                             }
                         )
                     }
@@ -86,7 +86,7 @@ class GameActivity : ComponentActivity() {
     }
 
     private fun setupFullscreen() {
-        // Enable edge-to-edge display
+        // https://stackoverflow.com/questions/78198494/how-to-enable-fullscreen-in-jetpack-compose-apps
         enableEdgeToEdge()
 
         // Keep screen on during gameplay

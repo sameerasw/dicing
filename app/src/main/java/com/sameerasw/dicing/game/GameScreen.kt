@@ -18,7 +18,6 @@ import com.sameerasw.dicing.DiceLogic.rollDice
 import com.sameerasw.dicing.game.GameLogic.computerReroll
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.runtime.MutableIntState
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import kotlin.random.Random
 import androidx.compose.material.icons.Icons
@@ -30,11 +29,6 @@ import com.sameerasw.dicing.game.components.GameControls
 import com.sameerasw.dicing.game.components.PlayerSection
 import com.sameerasw.dicing.game.components.ScoreHeader
 import com.sameerasw.dicing.game.components.WinDialog
-
-private val ColorScheme.success: Color
-    get() {
-        return Color(0xFF4CAF50)
-    }
 
 @Composable
 fun GameScreen(
@@ -170,7 +164,7 @@ fun GameScreen(
     // UI logic
     if (!showGoBackText) {
         val orientation = LocalConfiguration.current.orientation
-        val isLandscape = orientation == Configuration.ORIENTATION_LANDSCAPE
+        val isLandscape = orientation == Configuration.ORIENTATION_LANDSCAPE // https://stackoverflow.com/questions/68455145/how-to-preview-compose-layouts-in-landscape-mode
 
         Column(
             modifier = Modifier
@@ -249,6 +243,7 @@ fun GameScreen(
                         )
                         .padding(8.dp)
                 ) {
+                    // Computer section
                     ComputerSection(
                         computerScore = computerScore,
                         computerDice = computerDice
@@ -256,6 +251,8 @@ fun GameScreen(
 
                     Spacer(modifier = Modifier.height(32.dp))
 
+
+                    // Player section
                     PlayerSection(
                         playerScore = playerScore,
                         playerDice = playerDice,
@@ -269,6 +266,7 @@ fun GameScreen(
                 }
             }
 
+            // Instructions
                 Row(
                     modifier = Modifier
                         .padding(horizontal = 16.dp, vertical = 8.dp)
@@ -308,7 +306,7 @@ fun GameScreen(
             )
         }
 
-        // Dialog code remains unchanged
+        // Show win dialog if the game is over
         if (showWinDialog) {
             WinDialog(
                 isTieBreaker = isTieBreaker,
@@ -326,7 +324,7 @@ fun GameScreen(
             )
         }
     } else {
-        // "Go back" screen remains unchanged
+        // Show go back text
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = CenterHorizontally,

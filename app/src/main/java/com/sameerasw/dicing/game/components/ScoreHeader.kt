@@ -27,11 +27,13 @@ fun ScoreHeader(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
+        // Display the number of human and computer wins
         Text(
             text = "H:$humanWins/C:$computerWins",
             fontSize = 20.sp,
             modifier = Modifier.padding(horizontal = 8.dp)
         )
+        // Display the target score
         Text(
             text = "\uD83C\uDFAF $targetScore",
             fontSize = 20.sp,
@@ -41,6 +43,7 @@ fun ScoreHeader(
                 .background(MaterialTheme.colorScheme.surface, MaterialTheme.shapes.medium)
                 .padding(4.dp)
         )
+        // Display the total scores of the player and the computer
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(horizontal = 8.dp)
