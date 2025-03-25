@@ -162,37 +162,47 @@ fun GameScreen(
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceBetween
+            verticalArrangement = Arrangement.SpaceBetween,
         ) {
-            // Top - Scores
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "H:${humanWins.intValue}/C:${computerWins.intValue}",
-                    fontSize = 20.sp
-                )
-                Text(
-                    text = "Mode: ${if (useSmartStrategy) "Hard" else "Easy"} | Target: $targetScore",
-                    fontSize = 14.sp,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                )
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(imageVector = Icons.Filled.Person, contentDescription = "Player", modifier = Modifier.size(24.dp))
-                    Text(" $playerTotalScore", fontSize = 20.sp)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Icon(imageVector = Icons.Filled.Star, contentDescription = "Computer", modifier = Modifier.size(24.dp))
-                    Text(" $computerTotalScore", fontSize = 20.sp)
+                    modifier = Modifier
+                        .background(MaterialTheme.colorScheme.inverseOnSurface, MaterialTheme.shapes.medium)
+                        .padding(8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "H:${humanWins.intValue}/C:${computerWins.intValue}",
+                        fontSize = 20.sp,
+                        modifier = Modifier.padding(horizontal = 8.dp)
+                    )
+                    Text(
+                        text = "\uD83C\uDFAF $targetScore",
+                        fontSize = 20.sp,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp).background(MaterialTheme.colorScheme.surface, MaterialTheme.shapes.medium).padding(4.dp)
+                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(horizontal = 8.dp)
+                    ) {
+                        Icon(imageVector = Icons.Filled.Person, contentDescription = "Player", modifier = Modifier.size(24.dp))
+                        Text(" $playerTotalScore", fontSize = 20.sp)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Icon(imageVector = Icons.Filled.Star, contentDescription = "Computer", modifier = Modifier.size(24.dp))
+                        Text(" $computerTotalScore", fontSize = 20.sp)
+                    }
                 }
-            }
+
+            Spacer(modifier = Modifier.height(16.dp))
 
             // Middle - Dice
             Column(horizontalAlignment = CenterHorizontally,
-                verticalArrangement = Arrangement.Center) {
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier
+                    .background(MaterialTheme.colorScheme.inverseOnSurface, MaterialTheme.shapes.medium)
+                    .padding(8.dp)
+            ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(imageVector = Icons.Filled.Star, contentDescription = "Computer", modifier = Modifier.size(24.dp))
                     Text(" Computer Score: $computerScore", fontSize = 20.sp)
@@ -227,12 +237,14 @@ fun GameScreen(
                 )
             }
 
+            Spacer(modifier = Modifier.height(16.dp))
+
             // Bottom - Buttons
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceAround,
+                    .padding(8.dp),
+                horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.Bottom
             ) {
                 Button(onClick = {
@@ -253,6 +265,8 @@ fun GameScreen(
                 }, enabled = canThrow) {
                     Text(if (isLastThrow) "Throw and Score" else "Throw")
                 }
+
+                Spacer(modifier = Modifier.width(16.dp))
 
                 Button(onClick = {
                     // Handle scoring and winner check

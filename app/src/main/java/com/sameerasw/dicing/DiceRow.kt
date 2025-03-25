@@ -1,9 +1,7 @@
 package com.sameerasw.dicing
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -22,19 +20,21 @@ fun DiceRow(
 ) {
     Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
         diceValues.forEachIndexed { index, value ->
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Dice(value = value, tint = ColorFilter.tint(diceColor))
-                if (isPlayer) {
-                    Checkbox(
-                        checked = selectedDice[index],
-                        onCheckedChange = { isChecked ->
-                            if (enableSelection) {
-                                onDiceSelected(index, isChecked)
-                            }
-                        },
-                        enabled = enableSelection
-                    )
-                }
+            if (isPlayer) {
+                Dice(
+                    value = value,
+                    tint = ColorFilter.tint(diceColor),
+                    selected = selectedDice[index],
+                    enabled = enableSelection,
+                    onClick = {
+                        onDiceSelected(index, !selectedDice[index])
+                    }
+                )
+            } else {
+                Dice(
+                    value = value,
+                    tint = ColorFilter.tint(diceColor)
+                )
             }
         }
     }
