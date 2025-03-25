@@ -22,8 +22,8 @@ fun WinDialog(
     val dialogText = if (isTieBreaker) "Score most points to win!" else
         when (winner) {
             "Tie" -> "It's a tie!"
-            "Player" -> "You win!"
-            "Computer" -> "You lose!"
+            "Player" -> "You win! \uD83D\uDC4F\uD83D\uDE2E\u200D\uD83D\uDCA8"
+            "Computer" -> "You lose! \uD83E\uDEF5\uD83D\uDE1D"
             else -> "Game Over"
         }
 
@@ -35,11 +35,12 @@ fun WinDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Target Reached") },
+        title = { Text("Round over!") },
         text = {
             Text(
                 text = dialogText,
                 color = textColor,
+                style = MaterialTheme.typography.bodyLarge
             )
         },
         confirmButton = {

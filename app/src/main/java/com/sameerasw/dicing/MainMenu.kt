@@ -45,7 +45,10 @@ fun MainMenu(humanWins: Int, computerWins: Int, onNavigateToGame: (Int, Boolean)
             .padding(16.dp)
     ) {
         // Main Menu Box
-        Box(modifier = Modifier.fillMaxWidth()) {
+        Box(modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.background)
+        ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
