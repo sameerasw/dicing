@@ -18,7 +18,7 @@ fun DiceRow(
     enableSelection: Boolean = true,
     diceColor: Color = MaterialTheme.colorScheme.primary
 ) {
-    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+    Row(horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
         diceValues.forEachIndexed { index, value ->
             if (isPlayer) {
                 Dice(

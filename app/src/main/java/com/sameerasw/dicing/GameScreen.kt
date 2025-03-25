@@ -1,5 +1,6 @@
 package com.sameerasw.dicing
 
+import android.content.res.Configuration
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.background
@@ -21,8 +22,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import kotlin.random.Random
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.text.font.FontWeight
+import com.sameerasw.dicing.components.ComputerSection
+import com.sameerasw.dicing.components.GameControls
+import com.sameerasw.dicing.components.PlayerSection
+import com.sameerasw.dicing.components.ScoreHeader
+import com.sameerasw.dicing.components.WinDialog
 
 private val ColorScheme.success: Color
     get() {
@@ -160,94 +170,60 @@ fun GameScreen(
     // UI logic
     if (!showGoBackText) {
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(
+                    LocalConfiguration.current.orientation.let {
+                        when (it) {
+                            Configuration.ORIENTATION_PORTRAIT -> 48.dp
+                            else -> 8.dp
+                        }
+                    }
+                ),
             horizontalAlignment = CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween,
         ) {
-            Row(
-                    modifier = Modifier
-                        .background(MaterialTheme.colorScheme.inverseOnSurface, MaterialTheme.shapes.medium)
-                        .padding(8.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "H:${humanWins.intValue}/C:${computerWins.intValue}",
-                        fontSize = 20.sp,
-                        modifier = Modifier.padding(horizontal = 8.dp)
-                    )
-                    Text(
-                        text = "\uD83C\uDFAF $targetScore",
-                        fontSize = 20.sp,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp).background(MaterialTheme.colorScheme.surface, MaterialTheme.shapes.medium).padding(4.dp)
-                    )
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(horizontal = 8.dp)
-                    ) {
-                        Icon(imageVector = Icons.Filled.Person, contentDescription = "Player", modifier = Modifier.size(24.dp))
-                        Text(" $playerTotalScore", fontSize = 20.sp)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Icon(imageVector = Icons.Filled.Star, contentDescription = "Computer", modifier = Modifier.size(24.dp))
-                        Text(" $computerTotalScore", fontSize = 20.sp)
-                    }
-                }
+            ScoreHeader(
+                humanWins = humanWins.intValue,
+                computerWins = computerWins.intValue,
+                targetScore = targetScore,
+                playerTotalScore = playerTotalScore,
+                computerTotalScore = computerTotalScore
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Middle - Dice
-            Column(horizontalAlignment = CenterHorizontally,
+            Column(
+                horizontalAlignment = CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
                 modifier = Modifier
                     .background(MaterialTheme.colorScheme.inverseOnSurface, MaterialTheme.shapes.medium)
                     .padding(8.dp)
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(imageVector = Icons.Filled.Star, contentDescription = "Computer", modifier = Modifier.size(24.dp))
-                    Text(" Computer Score: $computerScore", fontSize = 20.sp)
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                DiceRow(
-                    diceValues = computerDice,
-                    isPlayer = false,
-                    diceColor = MaterialTheme.colorScheme.secondary
+                ComputerSection(
+                    computerScore = computerScore,
+                    computerDice = computerDice
                 )
 
                 Spacer(modifier = Modifier.height(32.dp))
 
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(imageVector = Icons.Filled.Person, contentDescription = "Player", modifier = Modifier.size(24.dp))
-                    Text(" Player Score: $playerScore", fontSize = 20.sp)
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                DiceRow(
-                    diceValues = playerDice,
-                    isPlayer = true,
+                PlayerSection(
+                    playerScore = playerScore,
+                    playerDice = playerDice,
                     selectedDice = selectedDice,
                     onDiceSelected = { index, isSelected ->
                         selectedDice = selectedDice.toMutableList().apply { this[index] = isSelected }
                     },
-                    enableSelection = canThrow,
-                    diceColor = MaterialTheme.colorScheme.primary
+                    enableSelection = canThrow
                 )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Bottom - Buttons
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.Bottom
-            ) {
-                Button(onClick = {
+            GameControls(
+                canThrow = canThrow,
+                isLastThrow = isLastThrow,
+                onThrowClick = {
                     if (playerThrowCount < 1) {
                         playerDice = rerollDice(playerDice, selectedDice)
                         playerScore = playerDice.sum()
@@ -259,72 +235,27 @@ fun GameScreen(
                             isLastThrow = true
                         }
                     } else {
-                        // Automatically handle score and winner check
                         handleScoreAndWinner()
                     }
-                }, enabled = canThrow) {
-                    Text(if (isLastThrow) "Throw and Score" else "Throw")
-                }
-
-                Spacer(modifier = Modifier.width(16.dp))
-
-                Button(onClick = {
-                    // Handle scoring and winner check
+                },
+                onScoreClick = {
                     handleScoreAndWinner()
-                }) {
-                    Text("Score")
                 }
-            }
+            )
         }
 
         if (showWinDialog) {
-            val dialogText = if (isTieBreaker) "Score most points to win!" else
-            // Show the winner
-                when (winner) {
-                    "Tie" -> "It's a tie!"
-                    "Player" -> "You win!"
-                    "Computer" -> "You lose!"
-                    else -> "Game Over"
-                }
-            val textColor = when (winner) {
-                    // Color the text based on the winner
-                    "Player" -> MaterialTheme.colorScheme.success
-                    "Computer" -> MaterialTheme.colorScheme.error
-                    else -> MaterialTheme.colorScheme.primary
-                }
-            AlertDialog(
-                onDismissRequest = {
+            WinDialog(
+                isTieBreaker = isTieBreaker,
+                winner = winner,
+                onDismiss = {
                     showWinDialog = false
                     isGameOver = true
                     if (isTieBreaker) {
                         isTieBreaker = false
                         resetDice()
-                    }
-                    else{
-                        showGoBackText = true // Activate the "Go Back" text
-                    }
-                },
-                title = { Text("Target Reached") },
-                text = {
-                    Text(
-                        text = dialogText,
-                        color = textColor,
-                    )
-                },
-                confirmButton = {
-                    Button(onClick = {
-                        showWinDialog = false
-                        isGameOver = true
-                        if (isTieBreaker) {
-                            isTieBreaker = false
-                            resetDice()
-                        }
-                        else{
-                            showGoBackText = true // Activate the "Go Back" text
-                        }
-
-                    }) {
-                        Text("OK")
+                    } else {
+                        showGoBackText = true
                     }
                 }
             )
@@ -335,12 +266,31 @@ fun GameScreen(
             horizontalAlignment = CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Text(
-                // Show the "Go Back" text
-                text = "Go Back to Restart",
-                textAlign = TextAlign.Center,
-                fontSize = 24.sp
-            )
+            Column(
+                modifier = Modifier
+                    .background(MaterialTheme.colorScheme.background, MaterialTheme.shapes.medium)
+                    .padding(16.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Star",
+                    modifier = Modifier.size(48.dp)
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = "Go Back to Restart",
+                    textAlign = TextAlign.Center,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 24.sp,
+                )
+                Text(
+                    text = "Press the back button to go back to the main menu",
+                    textAlign = TextAlign.Center,
+                    fontSize = 16.sp,
+                )
+            }
         }
     }
 }
