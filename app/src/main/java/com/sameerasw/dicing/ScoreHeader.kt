@@ -35,7 +35,7 @@ fun ScoreHeader(
         Text(
             text = "\uD83C\uDFAF $targetScore",
             fontSize = 20.sp,
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier
                 .padding(horizontal = 8.dp, vertical = 4.dp)
                 .background(MaterialTheme.colorScheme.surface, MaterialTheme.shapes.medium)

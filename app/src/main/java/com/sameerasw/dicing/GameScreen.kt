@@ -47,7 +47,8 @@ fun GameScreen(
     useSmartStrategy: Boolean = true,
     onBack: () -> Unit, // Callback to navigate back to the main menu
 ) {
-    val onBackPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher // handles back button
+    val onBackPressedDispatcher =
+        LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher // handles back button
     val lifecycleOwner = LocalLifecycleOwner.current
 
     DisposableEffect(lifecycleOwner, onBackPressedDispatcher) {
@@ -147,10 +148,12 @@ fun GameScreen(
                     humanWins.intValue++
                     "Player"
                 }
+
                 newComputerTotalScore > newPlayerTotalScore -> {
                     computerWins.intValue++
                     "Computer"
                 }
+
                 else -> {
                     // Tie breaker round
                     isTieBreaker = true
@@ -169,16 +172,14 @@ fun GameScreen(
 
     // UI logic
     if (!showGoBackText) {
+        val orientation = LocalConfiguration.current.orientation
+        val isLandscape = orientation == Configuration.ORIENTATION_LANDSCAPE
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(
-                    LocalConfiguration.current.orientation.let {
-                        when (it) {
-                            Configuration.ORIENTATION_PORTRAIT -> 48.dp
-                            else -> 8.dp
-                        }
-                    }
+                    if (isLandscape) 32.dp else 48.dp
                 ),
             horizontalAlignment = CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween,
@@ -193,33 +194,99 @@ fun GameScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Column(
-                horizontalAlignment = CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
-                modifier = Modifier
-                    .background(MaterialTheme.colorScheme.inverseOnSurface, MaterialTheme.shapes.medium)
-                    .padding(8.dp)
-            ) {
-                ComputerSection(
-                    computerScore = computerScore,
-                    computerDice = computerDice
-                )
+            // Conditional layout based on orientation
+            if (isLandscape) {
+                // Horizontal layout for landscape
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .weight(1f)
+                        .background(
+                            MaterialTheme.colorScheme.inverseOnSurface,
+                            MaterialTheme.shapes.medium
+                        )
+                        .padding(32.dp)
+                ) {
 
-                Spacer(modifier = Modifier.height(32.dp))
+                    // Player section
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(start = 8.dp)
+                    ) {
+                        PlayerSection(
+                            playerScore = playerScore,
+                            playerDice = playerDice,
+                            selectedDice = selectedDice,
+                            onDiceSelected = { index, isSelected ->
+                                selectedDice =
+                                    selectedDice.toMutableList().apply { this[index] = isSelected }
+                            },
+                            enableSelection = canThrow
+                        )
+                    }
 
-                PlayerSection(
-                    playerScore = playerScore,
-                    playerDice = playerDice,
-                    selectedDice = selectedDice,
-                    onDiceSelected = { index, isSelected ->
-                        selectedDice = selectedDice.toMutableList().apply { this[index] = isSelected }
-                    },
-                    enableSelection = canThrow
-                )
+                    // Computer section
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(end = 8.dp)
+                    ) {
+                        ComputerSection(
+                            computerScore = computerScore,
+                            computerDice = computerDice
+                        )
+                    }
+
+                }
+            } else {
+                // Vertical layout for portrait
+                Column(
+                    horizontalAlignment = CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
+                    modifier = Modifier
+                        .background(
+                            MaterialTheme.colorScheme.inverseOnSurface,
+                            MaterialTheme.shapes.medium
+                        )
+                        .padding(8.dp)
+                ) {
+                    ComputerSection(
+                        computerScore = computerScore,
+                        computerDice = computerDice
+                    )
+
+                    Spacer(modifier = Modifier.height(32.dp))
+
+                    PlayerSection(
+                        playerScore = playerScore,
+                        playerDice = playerDice,
+                        selectedDice = selectedDice,
+                        onDiceSelected = { index, isSelected ->
+                            selectedDice =
+                                selectedDice.toMutableList().apply { this[index] = isSelected }
+                        },
+                        enableSelection = canThrow
+                    )
+                }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+                Row(
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .background(
+                            MaterialTheme.colorScheme.background,
+                            MaterialTheme.shapes.medium
+                        )
+                ) {
+                    Text(
+                        "Tap dices and select to keep and click on 'Throw' to roll the remaining dices.",
+                        modifier = Modifier.padding(8.dp)
+                    )
+                }
 
+            // Controls - always at bottom
             GameControls(
                 canThrow = canThrow,
                 isLastThrow = isLastThrow,
@@ -244,6 +311,7 @@ fun GameScreen(
             )
         }
 
+        // Dialog code remains unchanged
         if (showWinDialog) {
             WinDialog(
                 isTieBreaker = isTieBreaker,
@@ -261,6 +329,7 @@ fun GameScreen(
             )
         }
     } else {
+        // "Go back" screen remains unchanged
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = CenterHorizontally,
