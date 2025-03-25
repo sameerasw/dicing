@@ -1,4 +1,4 @@
-package com.sameerasw.dicing.components
+package com.sameerasw.dicing.game.components
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button

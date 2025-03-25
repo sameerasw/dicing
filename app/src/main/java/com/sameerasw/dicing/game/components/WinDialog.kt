@@ -1,14 +1,13 @@
-package com.sameerasw.dicing.components
+package com.sameerasw.dicing.game.components
 
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
-private val ColorScheme.success: Color
+private val success: Color
     get() {
         return Color(0xFF4CAF50)
     }
@@ -28,7 +27,7 @@ fun WinDialog(
         }
 
     val textColor = when (winner) {
-        "Player" -> MaterialTheme.colorScheme.success
+        "Player" -> success
         "Computer" -> MaterialTheme.colorScheme.error
         else -> MaterialTheme.colorScheme.primary
     }

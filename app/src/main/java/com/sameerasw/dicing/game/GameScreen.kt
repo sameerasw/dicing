@@ -1,4 +1,4 @@
-package com.sameerasw.dicing
+package com.sameerasw.dicing.game
 
 import android.content.res.Configuration
 import androidx.activity.OnBackPressedCallback
@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sameerasw.dicing.DiceLogic.rerollDice
 import com.sameerasw.dicing.DiceLogic.rollDice
-import com.sameerasw.dicing.GameLogic.computerReroll
+import com.sameerasw.dicing.game.GameLogic.computerReroll
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.runtime.MutableIntState
 import androidx.compose.ui.graphics.Color
@@ -23,16 +23,13 @@ import androidx.compose.ui.text.style.TextAlign
 import kotlin.random.Random
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
-import com.sameerasw.dicing.components.ComputerSection
-import com.sameerasw.dicing.components.GameControls
-import com.sameerasw.dicing.components.PlayerSection
-import com.sameerasw.dicing.components.ScoreHeader
-import com.sameerasw.dicing.components.WinDialog
+import com.sameerasw.dicing.game.components.ComputerSection
+import com.sameerasw.dicing.game.components.GameControls
+import com.sameerasw.dicing.game.components.PlayerSection
+import com.sameerasw.dicing.game.components.ScoreHeader
+import com.sameerasw.dicing.game.components.WinDialog
 
 private val ColorScheme.success: Color
     get() {

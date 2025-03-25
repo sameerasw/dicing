@@ -1,4 +1,4 @@
-package com.sameerasw.dicing.components
+package com.sameerasw.dicing.game.components
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -11,7 +11,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.sameerasw.dicing.DiceRow
 
 @Composable
 fun PlayerSection(

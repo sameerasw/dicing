@@ -1,4 +1,4 @@
-package com.sameerasw.dicing
+package com.sameerasw.dicing.game
 
 import android.content.Intent
 import android.os.Bundle
@@ -21,6 +21,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import com.sameerasw.dicing.R
 import com.sameerasw.dicing.ui.theme.DicingTheme
 
 class GameActivity : ComponentActivity() {
